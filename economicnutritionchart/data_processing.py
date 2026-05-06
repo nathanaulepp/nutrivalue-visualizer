@@ -1,12 +1,15 @@
 import pandas as pd
+import os
 
 def load_ultimate_library():
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    
     print("Loading FNDDS Database...")
     # --- SECTION 1: FNDDS DATA ---
-    df_food = pd.read_csv('fndds/Economic nutrition chart - foodCodeAndName.csv')
-    df_nutrient = pd.read_csv('fndds/Economic nutrition chart - nutrientCodeAndDesc.csv')
-    df_fndds_val = pd.read_csv('fndds/Economic nutrition chart - FNDDSNutVal.csv', low_memory=False)
-    df_fndds_sug = pd.read_csv('fndds/Economic nutrition chart - FNDDSAddSug.csv')
+    df_food = pd.read_csv(os.path.join(BASE_DIR, 'fndds', 'Economic nutrition chart - foodCodeAndName.csv'))
+    df_nutrient = pd.read_csv(os.path.join(BASE_DIR, 'fndds', 'Economic nutrition chart - nutrientCodeAndDesc.csv'))
+    df_fndds_val = pd.read_csv(os.path.join(BASE_DIR, 'fndds', 'Economic nutrition chart - FNDDSNutVal.csv'), low_memory=False)
+    df_fndds_sug = pd.read_csv(os.path.join(BASE_DIR, 'fndds', 'Economic nutrition chart - FNDDSAddSug.csv'))
 
     fndds_master = pd.merge(df_fndds_val, df_nutrient, on='Nutrient Code')
     fndds_master = pd.merge(fndds_master, df_food, on='Food Code')
@@ -18,9 +21,9 @@ def load_ultimate_library():
 
     print("Loading SR Legacy Database...")
     # --- SECTION 2: SR LEGACY DATA ---
-    sr_food = pd.read_csv('srlegacy/sr_food.csv')
-    sr_nut_val = pd.read_csv('srlegacy/sr_food_nutrient.csv', low_memory=False)
-    sr_nut_desc = pd.read_csv('srlegacy/sr_nutrient.csv')
+    sr_food = pd.read_csv(os.path.join(BASE_DIR, 'srlegacy', 'sr_food.csv'))
+    sr_nut_val = pd.read_csv(os.path.join(BASE_DIR, 'srlegacy', 'sr_food_nutrient.csv'), low_memory=False)
+    sr_nut_desc = pd.read_csv(os.path.join(BASE_DIR, 'srlegacy', 'sr_nutrient.csv'))
     sr_nut_desc = sr_nut_desc[sr_nut_desc['unit_name'] != 'kJ']
     sr_master = pd.merge(sr_nut_val, sr_nut_desc, left_on='nutrient_id', right_on='id')
     sr_master = pd.merge(sr_master, sr_food, on='fdc_id')
