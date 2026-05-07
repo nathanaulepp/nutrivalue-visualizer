@@ -73,7 +73,6 @@ with st.spinner("Crunching NRF9.3 & Economic Utility for the full database..."):
     df_ultimate_master['Food Code'] = df_ultimate_master['Food Code'].astype(str).str.split('.').str[0].str.strip()
     df_prices['Food Code'] = df_prices['Food Code'].astype(str).str.split('.').str[0].str.strip()
     
-    # We no longer filter by valid_codes here! We calculate on the whole dataset.
     df_scoring = df_ultimate_master.copy()
 
     mapping_dict = {
@@ -99,13 +98,19 @@ with st.spinner("Crunching NRF9.3 & Economic Utility for the full database..."):
     
     df_scoring['Standard_Nutrient'] = df_scoring['Nutrient Description'].apply(smart_map)
     
-    # Notice we added 'Main Food Description' to the index so we retain the item names!
+    # [NEW FIX] Extract the Added Sugar column before it gets dropped by the pivot
+    df_sugars = df_scoring[['Food Code', 'Added Sugar']].drop_duplicates().groupby('Food Code')['Added Sugar'].max().reset_index()
+
+    # Pivot to get one row per food
     df_pivoted_all = df_scoring.dropna(subset=['Standard_Nutrient']).pivot_table(
         index=['Food Code', 'Main Food Description'], columns='Standard_Nutrient', values='Nutrient Value', aggfunc='max'
     ).reset_index().fillna(0)
 
+    # [NEW FIX] Merge the Added Sugar data back into the pivoted dataset
+    df_pivoted_all = pd.merge(df_pivoted_all, df_sugars, on='Food Code', how='left')
+    df_pivoted_all['Added Sugar'] = df_pivoted_all['Added Sugar'].fillna(0)
+
     # NRF9.3 CALCULATION (Per 100 kcals) for ALL ITEMS
-    if 'Added Sugar' not in df_pivoted_all.columns: df_pivoted_all['Added Sugar'] = 0
     if 'Energy' not in df_pivoted_all.columns: df_pivoted_all['Energy'] = 0
 
     nr9_cols = ['Protein', 'Fiber', 'Vitamin A', 'Vitamin C', 'Vitamin E', 'Calcium', 'Iron', 'Magnesium', 'Potassium']
