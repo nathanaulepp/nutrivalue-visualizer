@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 from data_processing import load_ultimate_library
 
 # ==========================================
@@ -155,48 +156,20 @@ drawing_config = {
     'displaylogo': False
 }
 
-tab_custom, tab_matrix = st.tabs(["🎛️ Custom Explorer", "🧭 Strategic Matrices"])
+# SWAPPED TAB ORDER
+tab_matrix, tab_custom = st.tabs(["🧭 Strategic Matrices", "🎛️ Custom Explorer"])
 
-with tab_custom:
-    col_plot, col_controls = st.columns([3, 1])
-
-    exclude_cols = ['Item', 'Source', 'Food Code', 'Category']
-    numeric_options = [col for col in df_display.columns if col not in exclude_cols]
-
-    with col_controls:
-        st.write("### ⚙️ Axes Controls")
-        x_axis = st.selectbox("X-Axis:", numeric_options, index=numeric_options.index('Cost per 100g ($)'))
-        y_axis = st.selectbox("Y-Axis:", numeric_options, index=numeric_options.index('NRF9.3 Score') if 'NRF9.3 Score' in numeric_options else 1)
-        
-        st.write("### 🏷️ Filter Categories")
-        available_cats = sorted(df_display['Category'].unique().tolist())
-        selected_cats = st.multiselect("Toggle visibility:", available_cats, default=available_cats, key="custom_cats")
-
-    with col_plot:
-        if selected_cats:
-            df_filtered = df_display[df_display['Category'].isin(selected_cats)]
-            fig = px.scatter(
-                df_filtered, x=x_axis, y=y_axis, color="Category", color_discrete_map=CATEGORY_COLORS, 
-                hover_name="Item", hover_data=["Price", "Edible Yield (g)", "Energy"],
-                template="plotly_white", height=600
-            )
-            fig.update_traces(marker=dict(size=14, opacity=0.85, line=dict(width=1.5, color='DarkSlateGrey')))
-            
-            # Switch default dragmode to pan so you don't accidentally draw when navigating
-            fig.update_layout(dragmode='pan')
-            
-            # Pass the drawing configuration to the chart
-            st.plotly_chart(fig, use_container_width=True, config=drawing_config)
-        else:
-            st.warning("Please select a category.")
-
+# ---------------------------------------------------------
+# TAB 1: STRATEGIC MATRICES
+# ---------------------------------------------------------
 with tab_matrix:
     col_matrix_plot, col_matrix_controls = st.columns([3, 1])
+    available_cats = sorted(df_display['Category'].unique().tolist())
 
     with col_matrix_controls:
-        st.write("### 🧠 Select Matrix")
+        st.write("### 🧠 Select Strategic Scatterplot")
         matrix_choice = st.radio(
-            "Choose a strategic view:",
+            "Choose a predefined view:",
             [
                 "1. True Value Plot", 
                 "2. Protein Efficiency", 
@@ -211,7 +184,6 @@ with tab_matrix:
         if selected_matrix_cats:
             df_mat = df_display[df_display['Category'].isin(selected_matrix_cats)].copy()
             
-            # Matrix Configurations (Now using true NRF9.3!)
             if matrix_choice == "1. True Value Plot":
                 x_val, y_val = 'Cost per 100g ($)', 'NRF9.3 Score'
                 chart_title = "True Value Plot: NRF9.3 Nutrient Density vs. Price"
@@ -243,13 +215,111 @@ with tab_matrix:
                 fig_mat.add_vline(x=med_x, line_dash="dash", line_color="grey", opacity=0.5)
                 fig_mat.add_hline(y=med_y, line_dash="dash", line_color="grey", opacity=0.5)
 
-                # Switch default dragmode to pan so you don't accidentally draw when navigating
                 fig_mat.update_layout(dragmode='pan')
-                
-                # Pass the drawing configuration to the chart
                 st.plotly_chart(fig_mat, use_container_width=True, config=drawing_config)
             else:
                 st.warning("Not enough data to calculate this matrix.")
+
+# ---------------------------------------------------------
+# TAB 2: CUSTOM EXPLORER (STATISTICAL SUITE)
+# ---------------------------------------------------------
+with tab_custom:
+    
+    st.write("### 🔬 Select Statistical Exploration")
+    exploration_type = st.radio(
+        "Choose chart type:",
+        [
+            "📈 Scatterplot (2-Variable Relationship)",
+            "📦 Box Plot (Distribution by Category)",
+            "📊 Histogram (Population Spread)",
+            "📉 Grouped Bar Chart (Category Averages)",
+            "🔥 Correlation Heatmap (Variable Overlap)"
+        ],
+        horizontal=True
+    )
+    
+    st.markdown("---")
+    
+    col_plot, col_controls = st.columns([3, 1])
+
+    exclude_cols = ['Item', 'Source', 'Food Code', 'Category']
+    numeric_options = [col for col in df_display.columns if col not in exclude_cols]
+    available_cats = sorted(df_display['Category'].unique().tolist())
+
+    with col_controls:
+        # Dynamic Controls based on selected exploration type
+        if "Scatterplot" in exploration_type:
+            st.write("### ⚙️ Axes Controls")
+            x_axis = st.selectbox("X-Axis:", numeric_options, index=numeric_options.index('Cost per 100g ($)'))
+            y_axis = st.selectbox("Y-Axis:", numeric_options, index=numeric_options.index('NRF9.3 Score') if 'NRF9.3 Score' in numeric_options else 1)
+            st.write("### 🏷️ Filter Categories")
+            selected_cats = st.multiselect("Toggle visibility:", available_cats, default=available_cats, key="scatter_cats")
+            
+        elif "Box Plot" in exploration_type or "Histogram" in exploration_type or "Bar Chart" in exploration_type:
+            st.write("### ⚙️ Data Control")
+            target_var = st.selectbox("Select Variable to Analyze:", numeric_options, index=numeric_options.index('NRF9.3 Score') if 'NRF9.3 Score' in numeric_options else 0)
+            st.write("### 🏷️ Filter Categories")
+            selected_cats = st.multiselect("Toggle visibility:", available_cats, default=available_cats, key="dist_cats")
+            
+        elif "Heatmap" in exploration_type:
+            st.write("### ⚙️ Heatmap Info")
+            st.info("The heatmap automatically compares all numeric variables across the entire dataset to find correlations (1.0 = perfect positive correlation, -1.0 = perfect negative correlation).")
+            selected_cats = available_cats # Use all data by default for correlation
+
+    # Render Plotly Charts dynamically
+    with col_plot:
+        if not selected_cats and "Heatmap" not in exploration_type:
+            st.warning("Please select at least one category.")
+        else:
+            df_filtered = df_display[df_display['Category'].isin(selected_cats)].copy()
+            
+            if "Scatterplot" in exploration_type:
+                fig = px.scatter(
+                    df_filtered, x=x_axis, y=y_axis, color="Category", color_discrete_map=CATEGORY_COLORS, 
+                    hover_name="Item", hover_data=["Price", "Edible Yield (g)", "Energy"],
+                    template="plotly_white", height=600, title=f"{y_axis} vs {x_axis}"
+                )
+                fig.update_traces(marker=dict(size=14, opacity=0.85, line=dict(width=1.5, color='DarkSlateGrey')))
+                fig.update_layout(dragmode='pan')
+                st.plotly_chart(fig, use_container_width=True, config=drawing_config)
+
+            elif "Box Plot" in exploration_type:
+                fig = px.box(
+                    df_filtered, x="Category", y=target_var, color="Category", color_discrete_map=CATEGORY_COLORS,
+                    template="plotly_white", height=600, title=f"Distribution of {target_var} by Category"
+                )
+                fig.update_layout(showlegend=False, xaxis_title=None)
+                st.plotly_chart(fig, use_container_width=True, config=drawing_config)
+
+            elif "Histogram" in exploration_type:
+                fig = px.histogram(
+                    df_filtered, x=target_var, color="Category", color_discrete_map=CATEGORY_COLORS,
+                    marginal="box", nbins=30, template="plotly_white", height=600, 
+                    title=f"Population Spread of {target_var}"
+                )
+                fig.update_layout(barmode="overlay")
+                fig.update_traces(opacity=0.75)
+                st.plotly_chart(fig, use_container_width=True, config=drawing_config)
+
+            elif "Bar Chart" in exploration_type:
+                # Calculate means for the bar chart
+                df_grouped = df_filtered.groupby("Category")[target_var].mean().reset_index()
+                fig = px.bar(
+                    df_grouped, x="Category", y=target_var, color="Category", color_discrete_map=CATEGORY_COLORS,
+                    template="plotly_white", height=600, title=f"Average {target_var} by Category"
+                )
+                fig.update_layout(showlegend=False, xaxis_title=None)
+                st.plotly_chart(fig, use_container_width=True, config=drawing_config)
+
+            elif "Heatmap" in exploration_type:
+                # Create correlation matrix
+                corr_matrix = df_filtered[numeric_options].corr()
+                fig = px.imshow(
+                    corr_matrix, text_auto=".2f", aspect="auto", 
+                    color_continuous_scale="RdBu_r", zmin=-1, zmax=1,
+                    template="plotly_white", height=700, title="Variable Correlation Matrix"
+                )
+                st.plotly_chart(fig, use_container_width=True)
 
 with st.expander("🔍 View Detailed Economic Data Table"):
     st.dataframe(df_display, use_container_width=True, hide_index=True)
