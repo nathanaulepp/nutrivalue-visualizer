@@ -9,7 +9,6 @@ from data_processing import load_ultimate_library
 # ==========================================
 st.set_page_config(page_title="Nutrition Price Portal", layout="wide")
 
-# Hide default Streamlit menu and footer to keep it clean
 hide_streamlit_style = """
     <style>
     #MainMenu {visibility: hidden;}
@@ -19,7 +18,6 @@ hide_streamlit_style = """
     """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-# Exact 1:1 Color Mapping with your Categories
 CATEGORY_COLORS = {
     "Grains & Starches": "#FF8B2C",
     "Sweetener": "#FD54A9",
@@ -31,11 +29,10 @@ CATEGORY_COLORS = {
     "Protein": "#9370DB",                
     "Dairy & Alternatives": "#FFFFFF",   
     "Fats & Oils": "#FFD700",            
-    "Uncategorized": "#CCCCCC"           
+    "Uncategorized": "#CCCCCC",
+    "All USDA Foods": "#1f77b4" # Default color for full dataset
 }
-KNOWN_CATEGORIES = list(CATEGORY_COLORS.keys())
 
-# NRF9.3 Daily Reference Values
 DV_MAPPING = {
     'Protein': 50, 'Fiber': 28, 'Vitamin A': 900, 'Vitamin C': 90,
     'Vitamin E': 15, 'Calcium': 1300, 'Iron': 18, 'Magnesium': 420,
@@ -53,14 +50,10 @@ df_ultimate_master = get_master_data()
 price_file = 'price_data.csv'
 df_prices = pd.read_csv(price_file)
 
-# Ensure Clean Categories & Headers
 df_prices.columns = df_prices.columns.str.strip()
-
-# Strip hidden spaces from the actual category names so the colors map correctly
 if 'Category' in df_prices.columns:
     df_prices['Category'] = df_prices['Category'].astype(str).str.strip()
 
-# Force numeric columns to be actual numbers (cleans out hidden spaces from CSVs)
 df_prices['Price'] = pd.to_numeric(df_prices['Price'].astype(str).str.strip(), errors='coerce')
 df_prices['Edible Yield (g)'] = pd.to_numeric(df_prices['Edible Yield (g)'].astype(str).str.strip(), errors='coerce')
 if 'Weight' in df_prices.columns:
@@ -72,19 +65,17 @@ df_prices['Category'] = df_prices['Category'].fillna("Uncategorized")
 
 
 # ==========================================
-# 3. THE CALCULATION ENGINE (NRF9.3 + Utility)
+# 3. THE CALCULATION ENGINE
 # ==========================================
 st.title("📊 Economic Nutrition Explorer")
 
-with st.spinner("Crunching NRF9.3 & Economic Utility..."):
-    # Clean strings for perfect merging
+with st.spinner("Crunching NRF9.3 & Economic Utility for the full database..."):
     df_ultimate_master['Food Code'] = df_ultimate_master['Food Code'].astype(str).str.split('.').str[0].str.strip()
     df_prices['Food Code'] = df_prices['Food Code'].astype(str).str.split('.').str[0].str.strip()
     
-    valid_codes = df_prices['Food Code'].unique()
-    df_scoring = df_ultimate_master[df_ultimate_master['Food Code'].isin(valid_codes)].copy()
+    # We no longer filter by valid_codes here! We calculate on the whole dataset.
+    df_scoring = df_ultimate_master.copy()
 
-    # Broad Mapping Dictionary for all 12+ Nutrients
     mapping_dict = {
         'Energy': ['energy'],
         'Protein': ['protein'],
@@ -108,57 +99,53 @@ with st.spinner("Crunching NRF9.3 & Economic Utility..."):
     
     df_scoring['Standard_Nutrient'] = df_scoring['Nutrient Description'].apply(smart_map)
     
-    # Pivot to get one row per food
-    df_pivoted = df_scoring.dropna(subset=['Standard_Nutrient']).pivot_table(
-        index='Food Code', columns='Standard_Nutrient', values='Nutrient Value', aggfunc='max'
+    # Notice we added 'Main Food Description' to the index so we retain the item names!
+    df_pivoted_all = df_scoring.dropna(subset=['Standard_Nutrient']).pivot_table(
+        index=['Food Code', 'Main Food Description'], columns='Standard_Nutrient', values='Nutrient Value', aggfunc='max'
     ).reset_index().fillna(0)
 
-    # NRF9.3 CALCULATION (Per 100 kcals)
-    if 'Added Sugar' not in df_pivoted.columns: df_pivoted['Added Sugar'] = 0
-    if 'Energy' not in df_pivoted.columns: df_pivoted['Energy'] = 0
+    # NRF9.3 CALCULATION (Per 100 kcals) for ALL ITEMS
+    if 'Added Sugar' not in df_pivoted_all.columns: df_pivoted_all['Added Sugar'] = 0
+    if 'Energy' not in df_pivoted_all.columns: df_pivoted_all['Energy'] = 0
 
     nr9_cols = ['Protein', 'Fiber', 'Vitamin A', 'Vitamin C', 'Vitamin E', 'Calcium', 'Iron', 'Magnesium', 'Potassium']
     lim3_cols = ['Saturated Fat', 'Added Sugar', 'Sodium']
     
-    # Ensure columns exist, then convert to per 100 kcal
     for nut in nr9_cols + lim3_cols:
-        if nut not in df_pivoted.columns: df_pivoted[nut] = 0
-        df_pivoted[f"{nut}_100k"] = df_pivoted.apply(
+        if nut not in df_pivoted_all.columns: df_pivoted_all[nut] = 0
+        df_pivoted_all[f"{nut}_100k"] = df_pivoted_all.apply(
             lambda row: (row[nut] / row['Energy'] * 100) if row['Energy'] > 0 else 0, axis=1
         )
 
-    # Score Math
     nr9_total = 0
     for nut in nr9_cols:
-        pct_dv = (df_pivoted[f"{nut}_100k"] / DV_MAPPING[nut]) * 100
-        nr9_total += pct_dv.clip(upper=100) # Cap at 100%
+        pct_dv = (df_pivoted_all[f"{nut}_100k"] / DV_MAPPING[nut]) * 100
+        nr9_total += pct_dv.clip(upper=100) 
         
     lim3_total = 0
     for nut in lim3_cols:
-        lim3_total += (df_pivoted[f"{nut}_100k"] / DV_MAPPING[nut]) * 100
+        lim3_total += (df_pivoted_all[f"{nut}_100k"] / DV_MAPPING[nut]) * 100
         
-    df_pivoted['NRF9.3 Score'] = round(nr9_total - lim3_total, 1)
+    df_pivoted_all['NRF9.3 Score'] = round(nr9_total - lim3_total, 1)
 
-    # ECONOMIC UTILITY MATH
-    df_display = pd.merge(df_prices, df_pivoted, on='Food Code', how='inner')
+    # ECONOMIC UTILITY MATH (Only applies to foods with prices)
+    df_economic = pd.merge(df_prices, df_pivoted_all, on='Food Code', how='inner')
     
-    df_display['Cost per 100g ($)'] = (df_display['Price'] / df_display['Edible Yield (g)']) * 100
-    df_display['Protein per Dollar (g)'] = df_display.apply(
+    df_economic['Cost per 100g ($)'] = (df_economic['Price'] / df_economic['Edible Yield (g)']) * 100
+    df_economic['Protein per Dollar (g)'] = df_economic.apply(
         lambda row: (row['Protein'] / row['Cost per 100g ($)']) if row['Cost per 100g ($)'] > 0 else 0, axis=1
     )
-    df_display['Calories per Dollar (kcal)'] = df_display.apply(
+    df_economic['Calories per Dollar (kcal)'] = df_economic.apply(
         lambda row: (row['Energy'] / row['Cost per 100g ($)']) if row['Cost per 100g ($)'] > 0 else 0, axis=1
     )
-    df_display['Cost per g Protein ($)'] = df_display.apply(
+    df_economic['Cost per g Protein ($)'] = df_economic.apply(
         lambda row: (row['Cost per 100g ($)'] / row['Protein']) if row['Protein'] > 0 else None, axis=1
     )
-    df_display['Satiety Score'] = df_display['Protein'] + df_display['Fiber']
+    df_economic['Satiety Score'] = df_economic['Protein'] + df_economic['Fiber']
 
 # ==========================================
 # 4. FRONT-END TABS & MATRICES
 # ==========================================
-
-# Drawing configuration for Plotly graphs
 drawing_config = {
     'modeBarButtonsToAdd': [
         'drawline', 'drawopenpath', 'drawclosedpath', 
@@ -167,33 +154,28 @@ drawing_config = {
     'displaylogo': False
 }
 
-# SWAPPED TAB ORDER
 tab_matrix, tab_custom = st.tabs(["🧭 Strategic Matrices", "🎛️ Custom Explorer"])
 
 # ---------------------------------------------------------
-# TAB 1: STRATEGIC MATRICES
+# TAB 1: STRATEGIC MATRICES (Price Data Only)
 # ---------------------------------------------------------
 with tab_matrix:
+    st.markdown("*Note: Strategic Matrices require price data and only display items from your grocery list.*")
     col_matrix_plot, col_matrix_controls = st.columns([3, 1])
-    available_cats = sorted(df_display['Category'].unique().tolist())
+    available_cats_econ = sorted(df_economic['Category'].unique().tolist())
 
     with col_matrix_controls:
         st.write("### 🧠 Select Strategic Scatterplot")
         matrix_choice = st.radio(
             "Choose a predefined view:",
-            [
-                "1. True Value Plot", 
-                "2. Protein Efficiency", 
-                "3. Empty Calorie Detector", 
-                "4. The Fullness Factor"
-            ]
+            ["1. True Value Plot", "2. Protein Efficiency", "3. Empty Calorie Detector", "4. The Fullness Factor"]
         )
         st.write("### 🏷️ Filter Categories")
-        selected_matrix_cats = st.multiselect("Toggle visibility:", available_cats, default=available_cats, key="matrix_cats")
+        selected_matrix_cats = st.multiselect("Toggle visibility:", available_cats_econ, default=available_cats_econ, key="matrix_cats")
 
     with col_matrix_plot:
         if selected_matrix_cats:
-            df_mat = df_display[df_display['Category'].isin(selected_matrix_cats)].copy()
+            df_mat = df_economic[df_economic['Category'].isin(selected_matrix_cats)].copy()
             
             if matrix_choice == "1. True Value Plot":
                 x_val, y_val = 'Cost per 100g ($)', 'NRF9.3 Score'
@@ -220,9 +202,7 @@ with tab_matrix:
                 
                 fig_mat.update_traces(marker=dict(opacity=0.80, line=dict(width=1.5, color='DarkSlateGrey')))
                 
-                # Median Lines for the Quadrants
-                med_x = df_mat[x_val].median()
-                med_y = df_mat[y_val].median()
+                med_x, med_y = df_mat[x_val].median(), df_mat[y_val].median()
                 fig_mat.add_vline(x=med_x, line_dash="dash", line_color="grey", opacity=0.5)
                 fig_mat.add_hline(y=med_y, line_dash="dash", line_color="grey", opacity=0.5)
 
@@ -232,67 +212,81 @@ with tab_matrix:
                 st.warning("Not enough data to calculate this matrix.")
 
 # ---------------------------------------------------------
-# TAB 2: CUSTOM EXPLORER (STATISTICAL SUITE)
+# TAB 2: CUSTOM EXPLORER (Full DB Toggle)
 # ---------------------------------------------------------
 with tab_custom:
+    col_header_1, col_header_2 = st.columns([2, 1])
     
-    st.write("### 🔬 Select Statistical Exploration")
-    exploration_type = st.radio(
-        "Choose chart type:",
-        [
-            "📈 Scatterplot (2-Variable Relationship)",
-            "📦 Box Plot (Distribution by Category)",
-            "📊 Histogram (Population Spread)",
-            "📉 Grouped Bar Chart (Category Averages)",
-            "🔥 Correlation Heatmap (Variable Overlap)"
-        ],
-        horizontal=True
-    )
-    
+    with col_header_1:
+        st.write("### 🔬 Select Statistical Exploration")
+        exploration_type = st.radio(
+            "Choose chart type:",
+            ["📈 Scatterplot", "📦 Box Plot", "📊 Histogram", "📉 Grouped Bar Chart", "🔥 Correlation Heatmap"],
+            horizontal=True
+        )
+        
+    with col_header_2:
+        st.write("### 🌐 Data Scope")
+        use_full_dataset = st.toggle("Include All USDA Data", value=False, help="Toggle to explore the full 10,000+ item nutritional database without price constraints.")
+        
     st.markdown("---")
     
+    # Configure dataset based on toggle
+    if use_full_dataset:
+        st.info("ℹ️ **Fine Print:** Currently visualizing the full USDA nutritional dataset. Price and Category data are specific to your grocery list and are excluded in this view.")
+        active_df = df_pivoted_all.copy()
+        active_df['Category'] = "All USDA Foods"
+        available_cats = ["All USDA Foods"]
+        hover_name_target = "Main Food Description"
+        hover_data_target = ["NRF9.3 Score", "Energy"]
+    else:
+        active_df = df_economic.copy()
+        available_cats = sorted(active_df['Category'].unique().tolist())
+        hover_name_target = "Item"
+        hover_data_target = ["Price", "Edible Yield (g)", "Energy"]
+
     col_plot, col_controls = st.columns([3, 1])
 
-    numeric_options = df_display.select_dtypes(include=['number', 'float64', 'int64']).columns.tolist()
-    if 'Food Code' in numeric_options:
-        numeric_options.remove('Food Code')
-    available_cats = sorted(df_display['Category'].unique().tolist())
+    # Only show numeric columns available in the active dataset
+    numeric_options = active_df.select_dtypes(include=['number', 'float64', 'int64']).columns.tolist()
+    if 'Food Code' in numeric_options: numeric_options.remove('Food Code')
 
     with col_controls:
-        # Dynamic Controls based on selected exploration type
         if "Scatterplot" in exploration_type:
             st.write("### ⚙️ Axes Controls")
-            x_axis = st.selectbox("X-Axis:", numeric_options, index=numeric_options.index('Cost per 100g ($)'))
+            x_axis = st.selectbox("X-Axis:", numeric_options, index=numeric_options.index('Cost per 100g ($)') if 'Cost per 100g ($)' in numeric_options else 0)
             y_axis = st.selectbox("Y-Axis:", numeric_options, index=numeric_options.index('NRF9.3 Score') if 'NRF9.3 Score' in numeric_options else 1)
-            st.write("### 🏷️ Filter Categories")
-            selected_cats = st.multiselect("Toggle visibility:", available_cats, default=available_cats, key="scatter_cats")
+            if not use_full_dataset:
+                st.write("### 🏷️ Filter Categories")
+                selected_cats = st.multiselect("Toggle visibility:", available_cats, default=available_cats, key="scatter_cats")
+            else: selected_cats = available_cats
             
-        elif "Box Plot" in exploration_type or "Histogram" in exploration_type or "Bar Chart" in exploration_type:
+        elif exploration_type in ["📦 Box Plot", "📊 Histogram", "📉 Grouped Bar Chart"]:
             st.write("### ⚙️ Data Control")
             target_var = st.selectbox("Select Variable to Analyze:", numeric_options, index=numeric_options.index('NRF9.3 Score') if 'NRF9.3 Score' in numeric_options else 0)
-            st.write("### 🏷️ Filter Categories")
-            selected_cats = st.multiselect("Toggle visibility:", available_cats, default=available_cats, key="dist_cats")
+            if not use_full_dataset:
+                st.write("### 🏷️ Filter Categories")
+                selected_cats = st.multiselect("Toggle visibility:", available_cats, default=available_cats, key="dist_cats")
+            else: selected_cats = available_cats
             
         elif "Heatmap" in exploration_type:
             st.write("### ⚙️ Heatmap Info")
-            st.info("The heatmap automatically compares all numeric variables across the entire dataset to find correlations (1.0 = perfect positive correlation, -1.0 = perfect negative correlation).")
-            selected_cats = available_cats # Use all data by default for correlation
+            st.caption("Compares all available numeric variables to find correlations (1.0 = perfect positive correlation, -1.0 = perfect negative correlation).")
+            selected_cats = available_cats
 
-    # Render Plotly Charts dynamically
     with col_plot:
         if not selected_cats and "Heatmap" not in exploration_type:
             st.warning("Please select at least one category.")
         else:
-            df_filtered = df_display[df_display['Category'].isin(selected_cats)].copy()
+            df_filtered = active_df[active_df['Category'].isin(selected_cats)].copy()
             
             if "Scatterplot" in exploration_type:
                 fig = px.scatter(
                     df_filtered, x=x_axis, y=y_axis, color="Category", color_discrete_map=CATEGORY_COLORS, 
-                    hover_name="Item", hover_data=["Price", "Edible Yield (g)", "Energy"],
+                    hover_name=hover_name_target, hover_data=hover_data_target,
                     template="plotly_white", height=600, title=f"{y_axis} vs {x_axis}"
                 )
-                fig.update_traces(marker=dict(size=14, opacity=0.85, line=dict(width=1.5, color='DarkSlateGrey')))
-                fig.update_layout(dragmode='pan')
+                fig.update_traces(marker=dict(size=12 if use_full_dataset else 14, opacity=0.7 if use_full_dataset else 0.85, line=dict(width=1, color='DarkSlateGrey')))
                 st.plotly_chart(fig, use_container_width=True, config=drawing_config)
 
             elif "Box Plot" in exploration_type:
@@ -306,15 +300,14 @@ with tab_custom:
             elif "Histogram" in exploration_type:
                 fig = px.histogram(
                     df_filtered, x=target_var, color="Category", color_discrete_map=CATEGORY_COLORS,
-                    marginal="box", nbins=30, template="plotly_white", height=600, 
+                    marginal="box", nbins=50 if use_full_dataset else 30, template="plotly_white", height=600, 
                     title=f"Population Spread of {target_var}"
                 )
                 fig.update_layout(barmode="overlay")
                 fig.update_traces(opacity=0.75)
                 st.plotly_chart(fig, use_container_width=True, config=drawing_config)
 
-            elif "Bar Chart" in exploration_type:
-                # Calculate means for the bar chart
+            elif "Grouped Bar Chart" in exploration_type:
                 df_grouped = df_filtered.groupby("Category")[target_var].mean().reset_index()
                 fig = px.bar(
                     df_grouped, x="Category", y=target_var, color="Category", color_discrete_map=CATEGORY_COLORS,
@@ -324,14 +317,13 @@ with tab_custom:
                 st.plotly_chart(fig, use_container_width=True, config=drawing_config)
 
             elif "Heatmap" in exploration_type:
-                # Create correlation matrix
                 corr_matrix = df_filtered[numeric_options].corr()
                 fig = px.imshow(
-                    corr_matrix, text_auto=".2f", aspect="auto", 
+                    corr_matrix, text_auto=".2f" if len(numeric_options) < 15 else False, aspect="auto", 
                     color_continuous_scale="RdBu_r", zmin=-1, zmax=1,
-                    template="plotly_white", height=700, title="Variable Correlation Matrix"
+                    template="plotly_white", height=800, title="Variable Correlation Matrix"
                 )
                 st.plotly_chart(fig, use_container_width=True)
 
-with st.expander("🔍 View Detailed Economic Data Table"):
-    st.dataframe(df_display, use_container_width=True, hide_index=True)
+with st.expander("🔍 View Detailed Data Table"):
+    st.dataframe(active_df if use_full_dataset else df_economic, use_container_width=True, hide_index=True)
