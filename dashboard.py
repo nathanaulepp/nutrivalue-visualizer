@@ -43,7 +43,7 @@ DV_MAPPING = {
 }
 
 # ==========================================
-# 2. DATA LOADING
+# 2. DATA LOADING & CLEANING
 # ==========================================
 @st.cache_data
 def get_master_data():
@@ -55,6 +55,13 @@ df_prices = pd.read_csv(price_file)
 
 # Ensure Clean Categories & Headers
 df_prices.columns = df_prices.columns.str.strip()
+
+# NEW: Force numeric columns to be actual numbers (cleans out hidden spaces from CSVs)
+df_prices['Price'] = pd.to_numeric(df_prices['Price'].astype(str).str.strip(), errors='coerce')
+df_prices['Edible Yield (g)'] = pd.to_numeric(df_prices['Edible Yield (g)'].astype(str).str.strip(), errors='coerce')
+if 'Weight' in df_prices.columns:
+    df_prices['Weight'] = pd.to_numeric(df_prices['Weight'].astype(str).str.strip(), errors='coerce')
+
 if 'Category' not in df_prices.columns:
     df_prices['Category'] = "Uncategorized"
 df_prices['Category'] = df_prices['Category'].fillna("Uncategorized")
