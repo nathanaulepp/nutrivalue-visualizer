@@ -1428,7 +1428,6 @@ fdc_id,data_type,description,food_category_id,publication_date,total_sugar
 167622,sr_legacy_food,"Deer (venison), sitka, raw (Alaska Native)",24,4/1/2019,
 168079,sr_legacy_food,"DENNY'S, chicken nuggets, star shaped, from kid's menu",25,4/1/2019,0
 167673,sr_legacy_food,"DENNY'S, top sirloin steak",25,4/1/2019,
-168794,sr_legacy_food,"Desserts, rennin, tablets, unsweetened",19,4/1/2019,
 172233,sr_legacy_food,"Dill weed, fresh",2,4/1/2019,
 170076,sr_legacy_food,"Dock, raw",11,4/1/2019,
 169905,sr_legacy_food,"Dove, cooked (includes squab)",5,4/1/2019,0
@@ -1801,7 +1800,6 @@ fdc_id,data_type,description,food_category_id,publication_date,total_sugar
 169234,sr_legacy_food,"Hyacinth-beans, immature seeds, raw",11,4/1/2019,4.08
 174687,sr_legacy_food,"Jackfruit, raw",9,4/1/2019,19.08
 168150,sr_legacy_food,"Java-plum, (jambolan), raw",9,4/1/2019,
-168129,sr_legacy_food,"Jellyfish, dried, salted",15,4/1/2019,0
 169236,sr_legacy_food,"Jerusalem-artichokes, raw",11,4/1/2019,9.6
 169237,sr_legacy_food,"Jew's ear, (pepeao), raw",11,4/1/2019,
 168152,sr_legacy_food,"Jujube, Chinese, fresh, dried",9,4/1/2019,
@@ -2098,8 +2096,6 @@ fdc_id,data_type,description,food_category_id,publication_date,total_sugar
 169244,sr_legacy_food,"Lambsquarters, raw",11,4/1/2019,
 168995,sr_legacy_food,"Lambsquarters, raw (Northern Plains Indians)",24,4/1/2019,
 171401,sr_legacy_food,Lard,4,4/1/2019,0
-172803,sr_legacy_food,"Leavening agents, baking powder, double-acting, sodium aluminum sulfate",18,4/1/2019,0
-172804,sr_legacy_food,"Leavening agents, baking powder, double-acting, straight phosphate",18,4/1/2019,0
 172805,sr_legacy_food,"Leavening agents, baking powder, low-sodium",18,4/1/2019,0
 175040,sr_legacy_food,"Leavening agents, baking soda",18,4/1/2019,0
 175041,sr_legacy_food,"Leavening agents, cream of tartar",18,4/1/2019,0
@@ -3082,7 +3078,6 @@ fdc_id,data_type,description,food_category_id,publication_date,total_sugar
 173262,sr_legacy_food,"Sorghum flour, refined, unenriched",20,4/1/2019,
 171548,sr_legacy_food,"Soup, beef broth bouillon and consomme, canned, condensed",6,4/1/2019,0
 171538,sr_legacy_food,"Soup, beef broth or bouillon canned, ready-to-serve",6,4/1/2019,0
-171563,sr_legacy_food,"Soup, chicken broth cubes, dry",6,4/1/2019,0
 171543,sr_legacy_food,"Soup, chicken noodle, canned, condensed",6,4/1/2019,0
 172909,sr_legacy_food,"Soup, chicken noodle, canned, prepared with equal volume water",6,4/1/2019,0
 171547,sr_legacy_food,"Soup, clam chowder, new england, canned, condensed",6,4/1/2019,0.38
@@ -3198,7 +3193,6 @@ fdc_id,data_type,description,food_category_id,publication_date,total_sugar
 168489,sr_legacy_food,"Taro shoots, raw",11,4/1/2019,
 169308,sr_legacy_food,"Taro, raw",11,4/1/2019,0.4
 169310,sr_legacy_food,"Taro, tahitian, raw",11,4/1/2019,
-167620,sr_legacy_food,"Tea, tundra, herb and laborador combination (Alaska Native)",24,4/1/2019,
 172467,sr_legacy_food,"Tempeh, cooked",16,4/1/2019,
 173470,sr_legacy_food,"Thyme, fresh",2,4/1/2019,
 172450,sr_legacy_food,"Tofu, dried-frozen (koyadofu)",16,4/1/2019,
