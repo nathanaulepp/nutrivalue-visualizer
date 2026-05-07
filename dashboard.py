@@ -8,6 +8,16 @@ from data_processing import load_ultimate_library
 # ==========================================
 st.set_page_config(page_title="Nutrition Price Portal", layout="wide")
 
+# Hide default Streamlit menu and footer to keep it clean
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    </style>
+    """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 # Exact 1:1 Color Mapping with your Categories
 CATEGORY_COLORS = {
     "Grains & Starches": "#DEB887",
@@ -32,7 +42,7 @@ DV_MAPPING = {
 }
 
 # ==========================================
-# 2. DATA LOADING & SIDEBAR MANAGEMENT
+# 2. DATA LOADING
 # ==========================================
 @st.cache_data
 def get_master_data():
@@ -48,31 +58,6 @@ if 'Category' not in df_prices.columns:
     df_prices['Category'] = "Uncategorized"
 df_prices['Category'] = df_prices['Category'].fillna("Uncategorized")
 
-with st.sidebar:
-    st.title("🛠️ Task Menu")
-    st.write("Manage your grocery database.")
-    
-    tab_add, tab_list, tab_action = st.tabs(["📝 Add/Update", "✅ List", "🚨 Action"])
-    
-    with tab_add:
-        st.subheader("Add or Update Item")
-        item_name = st.text_input("Item Name:")
-        category = st.selectbox("Category:", KNOWN_CATEGORIES) 
-        price = st.number_input("Price ($):", min_value=0.0, format="%.2f")
-        weight = st.number_input("As Purchased Weight (grams):", min_value=0.0) 
-        st.info("*(Save logic connected to price_data.csv goes here)*")
-
-    with tab_list:
-        st.subheader("✅ Completed List")
-        st.dataframe(df_prices[df_prices['Price'] > 0], hide_index=True)
-
-    with tab_action:
-        st.subheader("🚨 Action Required")
-        df_incomplete = df_prices[
-            (df_prices['Price'].isna()) | (df_prices['Price'] == 0) | 
-            (df_prices['Edible Yield (g)'].isna()) | (df_prices['Edible Yield (g)'] == 0)
-        ]
-        st.dataframe(df_incomplete, hide_index=True)
 
 # ==========================================
 # 3. THE CALCULATION ENGINE (NRF9.3 + Utility)
@@ -160,6 +145,16 @@ with st.spinner("Crunching NRF9.3 & Economic Utility..."):
 # ==========================================
 # 4. FRONT-END TABS & MATRICES
 # ==========================================
+
+# Drawing configuration for Plotly graphs
+drawing_config = {
+    'modeBarButtonsToAdd': [
+        'drawline', 'drawopenpath', 'drawclosedpath', 
+        'drawcircle', 'drawrect', 'eraseshape'
+    ],
+    'displaylogo': False
+}
+
 tab_custom, tab_matrix = st.tabs(["🎛️ Custom Explorer", "🧭 Strategic Matrices"])
 
 with tab_custom:
@@ -186,7 +181,12 @@ with tab_custom:
                 template="plotly_white", height=600
             )
             fig.update_traces(marker=dict(size=14, opacity=0.85, line=dict(width=1.5, color='DarkSlateGrey')))
-            st.plotly_chart(fig, use_container_width=True)
+            
+            # Switch default dragmode to pan so you don't accidentally draw when navigating
+            fig.update_layout(dragmode='pan')
+            
+            # Pass the drawing configuration to the chart
+            st.plotly_chart(fig, use_container_width=True, config=drawing_config)
         else:
             st.warning("Please select a category.")
 
@@ -243,7 +243,11 @@ with tab_matrix:
                 fig_mat.add_vline(x=med_x, line_dash="dash", line_color="grey", opacity=0.5)
                 fig_mat.add_hline(y=med_y, line_dash="dash", line_color="grey", opacity=0.5)
 
-                st.plotly_chart(fig_mat, use_container_width=True)
+                # Switch default dragmode to pan so you don't accidentally draw when navigating
+                fig_mat.update_layout(dragmode='pan')
+                
+                # Pass the drawing configuration to the chart
+                st.plotly_chart(fig_mat, use_container_width=True, config=drawing_config)
             else:
                 st.warning("Not enough data to calculate this matrix.")
 
