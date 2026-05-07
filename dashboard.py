@@ -249,8 +249,9 @@ with tab_custom:
     
     col_plot, col_controls = st.columns([3, 1])
 
-    exclude_cols = ['Item', 'Source', 'Food Code', 'Category']
-    numeric_options = [col for col in df_display.columns if col not in exclude_cols]
+    numeric_options = df_display.select_dtypes(include=['number', 'float64', 'int64']).columns.tolist()
+    if 'Food Code' in numeric_options:
+        numeric_options.remove('Food Code')
     available_cats = sorted(df_display['Category'].unique().tolist())
 
     with col_controls:
