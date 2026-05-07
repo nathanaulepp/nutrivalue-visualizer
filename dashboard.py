@@ -21,10 +21,10 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # Exact 1:1 Color Mapping with your Categories
 CATEGORY_COLORS = {
-    "Grains & Starches": "#DEB887",
-    "Sweetener": "#FF69B4",
-    "Pulses & Peas": "#8FBC8F",
-    "Non-starchy Vegetables": "#2E8B57",
+    "Grains & Starches": "#FF8B2C",
+    "Sweetener": "#FD54A9",
+    "Pulses & Peas": "#46D146",
+    "Non-starchy Vegetables": "#1F7444",
     "Starchy Vegetables": "#E9967A",     
     "Nuts & Seeds": "#A0522D",           
     "Fruit": "#DC143C",                  
@@ -56,7 +56,11 @@ df_prices = pd.read_csv(price_file)
 # Ensure Clean Categories & Headers
 df_prices.columns = df_prices.columns.str.strip()
 
-# NEW: Force numeric columns to be actual numbers (cleans out hidden spaces from CSVs)
+# Strip hidden spaces from the actual category names so the colors map correctly
+if 'Category' in df_prices.columns:
+    df_prices['Category'] = df_prices['Category'].astype(str).str.strip()
+
+# Force numeric columns to be actual numbers (cleans out hidden spaces from CSVs)
 df_prices['Price'] = pd.to_numeric(df_prices['Price'].astype(str).str.strip(), errors='coerce')
 df_prices['Edible Yield (g)'] = pd.to_numeric(df_prices['Edible Yield (g)'].astype(str).str.strip(), errors='coerce')
 if 'Weight' in df_prices.columns:
