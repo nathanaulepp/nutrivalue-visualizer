@@ -19,17 +19,19 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 CATEGORY_COLORS = {
-    "Grains & Starches": "#FF8B2C",
+    "Grains & Starches (less refined)": "#C2740E",
+    "Grains & Starches (more refined)": "#FFC918",
     "Sweetener": "#FD54A9",
-    "Pulses & Peas": "#46D146",
+    "Pulses & Peas": "#3EDB3E",
     "Non-starchy Vegetables": "#1F7444",
     "Starchy Vegetables": "#E9967A",     
     "Nuts & Seeds": "#A0522D",           
-    "Fruit": "#DC143C",                  
+    "Fruit": "#DC1414",                  
     "Protein": "#9370DB",                
-    "Dairy & Alternatives": "#FFFFFF",   
-    "Fats & Oils": "#FFD700",            
-    "Uncategorized": "#CCCCCC",
+    "Dairy & Alternatives": "#89C3E2",   
+    "Fats & Oils": "#FFFDD0",
+    "Spices & Herbs": "#220F00", 
+    "Mixed Processed Foods": "#929292",           
     "All USDA Foods": "#1f77b4" # Default color for full dataset
 }
 

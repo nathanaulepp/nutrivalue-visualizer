@@ -1,0 +1,22 @@
+id,code,description
+1,100,Dairy & Alternatives
+2,200,Spices & Herbs
+4,400,Fats & Oils
+5,500,Protein
+5,700,Protein
+5,1000,Protein
+5,1300,Protein
+5,1500,Protein
+5,1700,Protein
+6,600,Mixed Processed Foods
+7,1600,Pulses & Peas
+8,800,Grains & Starches (more refined)
+8,1800,Grains & Starches (more refined)
+8,2500,Grains & Starches (more refined)
+9,2000,Grains & Starches (less refined)
+10,900,Fruit
+11,,Starchy Vegetables
+12,1100,Non-starchy Vegetables
+13,1200,Nuts & Seeds
+14,1900,Sweetener
+16,1400,Beverages

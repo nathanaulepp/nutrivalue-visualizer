@@ -1,61 +1,97 @@
 Item                                                                                                                , Price, Weight      , Edible Factor, Edible Yield (g), Source     , Food Code, Category
-"Rice, white, long-grain, regular, raw, enriched                                                                   ",11.14,9072,1,9072, Walmart    ,168877, Grains & Starches
-"Rice, brown, long-grain, raw                                                                                      ",3.98,2268,1,2268, Walmart    ,169703, Grains & Starches
-"Quinoa, uncooked                                                                                                  ",6.22,907.2,1,907.2, Walmart    ,168874, Grains & Starches
-"Cereals, corn grits, white, regular and quick, enriched, dry                                                      ",2.18,680.4,1,680.4, Walmart    ,171654, Grains & Starches
-"Cereals, oats, instant, fortified, plain, dry                                                                     ",4.18,1190.7,1,1190.7, Walmart    ,171661, Grains & Starches
-"Flour, wheat, all-purpose, enriched, bleached                                                                     ",4.57,4536,1,4536, Walmart    ,172018, Grains & Starches
-"Flour, whole wheat                                                                                                ",2.49,2268,1,2268, Target     ,168893, Grains & Starches
-"Sugar, white, granulated or lump                                                                                  ",3.46,1814.4,1,1814.4, Walmart    ,91101010, Sweetener
-"Semolina, enriched                                                                                                ",3.68,680.4,1,680.4, Walmart    ,169715, Grains & Starches
-"Couscous, dry                                                                                                     ",8.12,751.275,1,751.275, Walmart    ,169699, Grains & Starches
-"Rice noodles, dry                                                                                                 ",2.87,249.48,1,249.48, Walmart    ,169742, Grains & Starches
-"Noodles, egg, dry, unenriched                                                                                     ",1.48,453.6,1,453.6, Walmart    ,169755, Grains & Starches
-"Pasta, dry, enriched                                                                                              ",0.98,453.6,1,453.6, Walmart    ,169736, Grains & Starches
-"Gnocchi, potato                                                                                                   ",1.97,498.96,1,498.96, Walmart    ,58122220, Grains & Starches
-"Bread, whole wheat                                                                                                ",1.97,567,1,567, Walmart    ,51300110, Grains & Starches
-"Bread, white                                                                                                      ",1.42,567,1,567, Walmart    ,51101000, Grains & Starches
-"Tortilla, flour                                                                                                   ",2.12,737.1,1,737.1, Walmart    ,52215200, Grains & Starches
-"Tortilla, corn                                                                                                    ",2.97,1899.45,1,1899.45, Walmart    ,52215100, Grains & Starches
-"Muffin, English                                                                                                   ",1.48,340.2,1,340.2, Walmart    ,51186010, Grains & Starches
-Bagel                                                                                                               ,2.08,567,1,567, Walmart    ,51180010, Grains & Starches
-"Roll, white, hamburger bun                                                                                        ",1.46,311.85,1,311.85, Walmart    ,51154100, Grains & Starches
-"Bread, pita                                                                                                       ",2.97,476.28,1,476.28, Walmart    ,51109100, Grains & Starches
-"Lentils, raw                                                                                                      ",5.98,1814.4,1,1814.4, Walmart    ,172420, Pulses & Peas
-"Beans, Black, dry                                                                                                 ",4.98,1814.4,1,1814.4, Walmart    ,173734, Pulses & Peas
-"Beans, Pinto, dry                                                                                                 ",3.76,1814.4,1,1814.4, Walmart    ,175199, Pulses & Peas
-"Beans, Navy, dry                                                                                                  ",1.28,453.6,1,453.6, Walmart    ,173745, Pulses & Peas
-"Chickpeas (garbanzo beans, bengal gram), mature seeds, raw                                                        ",1.46,453.6,1,453.6, Walmart    ,173756, Pulses & Peas
-"Peas, green, split, mature seeds, raw                                                                             ",1.42,453.6,1,453.6, Walmart    ,172428, Pulses & Peas
-"Black beans, from canned, no added fat                                                                            ",0.86,425.25,1,425.25, Walmart    ,41102080, Pulses & Peas
+"Milk, whole, 3.25% milkfat, with added vitamin D                                                                  ",3.78,3900,1,3900, Walmart    ,171265, Dairy & Alternatives
+"Milk, nonfat, fluid, with added vitamin A and vitamin D (fat free or skim)                                        ",3.78,3920,1,3920, Walmart    ,171269, Dairy & Alternatives
+"Milk, lactose free, whole                                                                                         ",3.38,3900,1,3900, Walmart    ,11114350, Dairy & Alternatives
+"Milk, lactose free, fat free (skim)                                                                               ",3.38,3920,1,3920, Walmart    ,11114320, Dairy & Alternatives
+"Almond milk, unsweetened                                                                                          ",2.63,1910,1,1910, Walmart    ,11350020, Dairy & Alternatives
+Soy milk                                                                                                            ,2.86,1940,1,1940, Walmart    ,11320000, Dairy & Alternatives
+"Cheese, Cheddar                                                                                                   ",6.96,907.2,1,907.2, Walmart    ,14104100, Dairy & Alternatives
+"Cheese, mozzarella, part skim milk                                                                                ",5.99,453.6,1,453.6, Yoke's     ,170847, Dairy & Alternatives
+"Cheese, mozzarella, whole milk                                                                                    ",2.74,170.1,1,170.1, Walmart    ,170845, Dairy & Alternatives
+"Cheese, mozzarella, low moisture, part-skim                                                                       ",6.96,907.2,1,907.2, Walmart    ,171244, Dairy & Alternatives
+"Cheese, mozzarella, low moisture, whole milk                                                                      ",3.74,453.6,1,453.6, Walmart    ,170846, Dairy & Alternatives
+"Cheese, Mexican blend                                                                                             ",6.96,907.2,1,907.2, Walmart    ,14120010, Dairy & Alternatives
+"Cheese, Parmesan, hard                                                                                            ",9.99,198.45,1,198.45, Kroger     ,14108020, Dairy & Alternatives
+"Cream cheese, regular, plain                                                                                      ",3.26,453.6,1,453.6, Walmart    ,14301010, Dairy & Alternatives
+"Cottage cheese, full fat, large or small curd                                                                     ",2.94,680.4,1,680.4, Walmart    ,172179, Dairy & Alternatives
+"Cheese, cottage, lowfat, 2% milkfat                                                                               ",5.24,1360.8,1,1360.8, Walmart    ,172182, Dairy & Alternatives
+"Cheese, ricotta, whole milk                                                                                       ",4.76,907.2,1,907.2, Walmart    ,170851, Dairy & Alternatives
+"Cheese, ricotta, part skim milk                                                                                   ",2.67,425.25,1,425.25, Walmart    ,171248, Dairy & Alternatives
+"Yogurt, plain, skim milk (nonfat)                                                                                 ",2.64,907.2,1,907.2, Walmart    ,170887, Dairy & Alternatives
+"Yogurt, plain, whole milk                                                                                         ",2.76,907.2,1,907.2, Walmart    ,171284, Dairy & Alternatives
+"Yogurt, Greek, plain, nonfat                                                                                      ",2.96,907.2,1,907.2, Walmart    ,170894, Dairy & Alternatives
+"Yogurt, Greek, plain, whole milk                                                                                  ",3.53,907.2,1,907.2, Walmart    ,171304, Dairy & Alternatives
+"Butter, stick, salted                                                                                             ",3.06,453.6,1,453.6, Walmart    ,81101000, Fats & Oils
+"Ghee, clarified butter                                                                                            ",7.47,368.55,1,368.55, Walmart    ,81204000, Fats & Oils
+Lard                                                                                                                ,2.14,453.6,1,453.6, Walmart    ,81202000, Fats & Oils
+"Fat, beef tallow                                                                                                  ",13.97,396.9,1,396.9, Walmart    ,171400, Fats & Oils
+Olive oil                                                                                                           ,15.38,1302,1,1302, Walmart    ,82104000, Fats & Oils
+Canola oil                                                                                                          ,9.47,3483,1,3483, Walmart    ,82105500, Fats & Oils
+"Oil, avocado                                                                                                      ",14.67,687,1,687, Walmart    ,173573, Fats & Oils
+"Oil, soybean                                                                                                      ",8.52,3471,1,3471, Walmart    ,171411, Fats & Oils
+Grapeseed oil                                                                                                       ,4.44,694,1,694, Walmart    ,82105000, Fats & Oils
+"Oil, peanut, salad or cooking                                                                                     ",17.16,3464,1,3464, Walmart    ,171410, Fats & Oils
+Sesame oil                                                                                                          ,4.98,235.2,1,235.2, Walmart    ,82107000, Fats & Oils
+Coconut oil                                                                                                         ,10.88,822.15,1,822.15, Walmart    ,82101500, Fats & Oils
+"Apples, gala, with skin, raw                                                                                      ",1.58,453.6,0.85,385.56, Walmart    ,168204, Fruit
+"Apples, fuji, with skin, raw                                                                                      ",1.42,453.6,0.85,385.56, Walmart    ,167793, Fruit
+"Apples, granny smith, with skin, raw                                                                              ",1.54,453.6,0.85,385.56, Walmart    ,168203, Fruit
+"Apples, raw, golden delicious, with skin                                                                          ",1.69,453.6,0.85,385.56, Fresh Thyme,168202, Fruit
+"Apples, honeycrisp, with skin, raw                                                                                ",3.08,453.6,0.85,385.56, Walmart    ,171688, Fruit
+"Oranges, raw, navels                                                                                              ",1.24,453.6,0.7,317.52, Walmart    ,169917, Fruit
+"Mandarin, seedless, peeled, raw                                                                                   ",5.73,2268,0.8,1814.4, Walmart    ,169105, Fruit
+"Pears, bartlett, raw                                                                                              ",2.08,453.6,0.9,408.24, Walmart    ,167776, Fruit
+"Pears, green anjou, raw                                                                                           ",3,453.5483871,0.93,421.8, Walmart    ,167779, Fruit
+"Pears, bosc, raw                                                                                                  ",1.98,453.5955056,0.89,403.7, Walmart    ,167778, Fruit
+"Apricot, with skin, raw                                                                                           ",3.98,453.6,0.9,408.24, Harps      ,171697, Fruit
+"Peach, frozen                                                                                                     ",2.86,453.6,1,453.6, Walmart    ,63135620, Fruit
+"Nectarine, raw                                                                                                    ",0.97,141.75,1,141.75, Walmart    ,63131010, Fruit
+"Plum, black, with skin, raw                                                                                       ",0.97,65.205,1,65.205, Walmart    ,169949, Fruit
+"Banana, raw                                                                                                       ",0.49,453.6,0.68,308.448, Walmart    ,63107010, Fruit
+"Banana, sliced, frozen                                                                                            ",2.47,453.6,1,453.6, Walmart    ,63107010, Fruit
+"Grapes, red or green, seedless, raw                                                                               ",2.17,453.6170213,0.94,426.4, Walmart    ,63123000, Fruit
+"Blueberries, raw                                                                                                  ",2.97,453.6,1,453.6, Walmart    ,63203010, Fruit
+"Blueberries, frozen                                                                                               ",7.82,1360.8,1,1360.8, Walmart    ,63203600, Fruit
+"Strawberries, raw                                                                                                 ",2.47,453.6,1,453.6, Walmart    ,63223020, Fruit
+"Strawberries, frozen                                                                                              ",8.96,1814.4,1,1814.4, Walmart    ,63223610, Fruit
+"Blackberries, raw                                                                                                 ",4.94,340.2,1,340.2, Walmart    ,63201010, Fruit
+"Blackberries, frozen                                                                                              ",3.76,453.6,1,453.6, Walmart    ,63201600, Fruit
+"Raspberries, raw                                                                                                  ",5.64,340.2,1,340.2, Walmart    ,63219000, Fruit
+"Raspberries, frozen                                                                                               ",7.46,680.4,1,680.4, Walmart    ,63219610, Fruit
+"Mango, raw                                                                                                        ",1.06,170.1,1,170.1, Walmart    ,63129010, Fruit
+"Mango, frozen                                                                                                     ",9.42,1360.8,1,1360.8, Walmart    ,63129050, Fruit
+"Pineapple, raw                                                                                                    ",2.38,680.4,0.55,374.22, Walmart    ,63141010, Fruit
+"Pineapple, frozen                                                                                                 ",2.47,453.6,1,453.6, Walmart    ,63141200, Fruit
+"Kiwi fruit, raw                                                                                                   ",4.97,907.2,0.95,861.84, Walmart    ,63126500, Fruit
+"Watermelon, raw                                                                                                   ",4.67,2268,1,2268, Walmart    ,167765, Fruit
+"Cantaloupe, raw                                                                                                   ",2.67,680.4,1,680.4, Walmart    ,63109010, Fruit
+"Honeydew melon, raw                                                                                               ",4.48,992.25,1,992.25, Walmart    ,63127010, Fruit
+Raisins                                                                                                             ,4.38,567,1,567, Walmart    ,62125100, Fruit
+"Fig, dried                                                                                                        ",5.97,226.8,1,226.8, Walmart    ,62113100, Fruit
+Date                                                                                                                ,7.99,362.88,1,362.88, Kroger     ,62110100, Fruit
+"Rice, white, long-grain, regular, raw, enriched                                                                   ",11.14,9072,1,9072, Walmart    ,168877, Grains & Starches (less refined)
+"Rice, brown, long-grain, raw                                                                                      ",3.98,2268,1,2268, Walmart    ,169703, Grains & Starches (less refined)
+"Quinoa, uncooked                                                                                                  ",6.22,907.2,1,907.2, Walmart    ,168874, Grains & Starches (less refined)
+"Cereals, corn grits, white, regular and quick, enriched, dry                                                      ",2.18,680.4,1,680.4, Walmart    ,171654, Grains & Starches (less refined)
+"Cereals, oats, instant, fortified, plain, dry                                                                     ",4.18,1190.7,1,1190.7, Walmart    ,171661, Grains & Starches (less refined)
+"Flour, wheat, all-purpose, enriched, bleached                                                                     ",4.57,4536,1,4536, Walmart    ,172018, Grains & Starches (less refined)
+"Flour, whole wheat                                                                                                ",2.49,2268,1,2268, Target     ,168893, Grains & Starches (less refined)
+"Semolina, enriched                                                                                                ",3.68,680.4,1,680.4, Walmart    ,169715, Grains & Starches (less refined)
+"Couscous, dry                                                                                                     ",8.12,751.275,1,751.275, Walmart    ,169699, Grains & Starches (less refined)
+"Bread, whole wheat                                                                                                ",1.97,567,1,567, Walmart    ,51300110, Grains & Starches (less refined)
+"Corn, canned, reduced sodium, cooked, no added fat                                                                ",0.76,425.25,1,425.25, Walmart    ,75216310, Grains & Starches (less refined)
+"Rice noodles, dry                                                                                                 ",2.87,249.48,1,249.48, Walmart    ,169742, Grains & Starches (more refined)
+"Noodles, egg, dry, unenriched                                                                                     ",1.48,453.6,1,453.6, Walmart    ,169755, Grains & Starches (more refined)
+"Pasta, dry, enriched                                                                                              ",0.98,453.6,1,453.6, Walmart    ,169736, Grains & Starches (more refined)
+"Gnocchi, potato                                                                                                   ",1.97,498.96,1,498.96, Walmart    ,58122220, Grains & Starches (more refined)
+"Bread, white                                                                                                      ",1.42,567,1,567, Walmart    ,51101000, Grains & Starches (more refined)
+"Tortilla, flour                                                                                                   ",2.12,737.1,1,737.1, Walmart    ,52215200, Grains & Starches (more refined)
+"Tortilla, corn                                                                                                    ",2.97,1899.45,1,1899.45, Walmart    ,52215100, Grains & Starches (more refined)
+"Muffin, English                                                                                                   ",1.48,340.2,1,340.2, Walmart    ,51186010, Grains & Starches (more refined)
+Bagel                                                                                                               ,2.08,567,1,567, Walmart    ,51180010, Grains & Starches (more refined)
+"Roll, white, hamburger bun                                                                                        ",1.46,311.85,1,311.85, Walmart    ,51154100, Grains & Starches (more refined)
+"Bread, pita                                                                                                       ",2.97,476.28,1,476.28, Walmart    ,51109100, Grains & Starches (more refined)
 "Tomatoes, canned, red, ripe, diced                                                                                ",0.96,411.075,1,411.075, Walmart    ,170501, Non-starchy Vegetables
-"Pumpkin, canned, cooked                                                                                           ",2.74,822.15,1,822.15, Walmart    ,73201013, Starchy Vegetables
-Peanut butter                                                                                                       ,6.47,1814.4,1,1814.4, Walmart    ,42202000, Nuts & Seeds
-Almond butter                                                                                                       ,4.98,340.2,1,340.2, Walmart    ,42200500, Nuts & Seeds
-"Seeds, sunflower seed butter, with salt added                                                                     ",6.98,453.6,1,453.6, Walmart    ,168595, Nuts & Seeds
-Tahini                                                                                                              ,6.48,311.85,1,311.85, Walmart    ,43103300, Nuts & Seeds
-"Peanuts, roasted, unsalted                                                                                        ",2.58,453.6,1,453.6, Walmart    ,42111110, Nuts & Seeds
-"Nuts, almonds                                                                                                     ",5.98,396.9,1,396.9, Walmart    ,170567, Nuts & Seeds
-"Nuts, walnuts, english                                                                                            ",9.96,453.6,1,453.6, Walmart    ,170187, Nuts & Seeds
-"Nuts, pecans                                                                                                      ",19.86,907.2,1,907.2, Walmart    ,170182, Nuts & Seeds
-"Pistachio nuts, lightly salted                                                                                    ",10.96,680,0.5,340, Walmart    ,42114142, Nuts & Seeds
-"Seeds, sunflower seed kernels, dried                                                                              ",2.58,453.6,1,453.6, Walmart    ,170562, Nuts & Seeds
-"Seeds, pumpkin and squash seed kernels, dried                                                                     ",3.72,226.8,1,226.8, Walmart    ,170556, Nuts & Seeds
-"Seeds, chia seeds, dried                                                                                          ",8.88,907.2,1,907.2, Walmart    ,170554, Nuts & Seeds
-Flax seeds                                                                                                          ,3.48,453.6,1,453.6, Walmart    ,43104000, Nuts & Seeds
-"Potatoes, russet, flesh and skin, raw (Includes foods for USDA's Food Distribution Program)                       ",3.24,2268,1,2268, Walmart    ,170027, Starchy Vegetables
-"Potatoes, red, flesh and skin, raw                                                                                ",5.74,2268,1,2268, Walmart    ,170029, Starchy Vegetables
-"Sweet potato, raw, unprepared (Includes foods for USDA's Food Distribution Program)                               ",3.18,1360.8,1,1360.8, Walmart    ,168482, Starchy Vegetables
-"Corn, canned, reduced sodium, cooked, no added fat                                                                ",0.76,425.25,1,425.25, Walmart    ,75216310, Grains & Starches
-"Plantains, green, raw                                                                                             ",0.68,269.325,0.65,175.06125, Walmart    ,168215, Starchy Vegetables
-"Plantains, yellow, raw                                                                                            ",0.68,269.325,0.65,175.06125, Walmart    ,169130, Starchy Vegetables
-"Parsnips, raw                                                                                                     ",3.77,453.6,0.85,385.56, Walmart    ,170417, Starchy Vegetables
-"Rutabaga, raw                                                                                                     ",3.17,771.12,0.85,655.452, Walmart    ,75127000, Starchy Vegetables
-"Beets, raw                                                                                                        ",2.49,453.5526316,0.76,344.7, Kroger     ,169145, Starchy Vegetables
-"Beets, canned, cooked, no added fat                                                                               ",0.78,425.25,1,425.25, Walmart    ,75208013, Starchy Vegetables
-"Green peas, canned, cooked, no added fat                                                                          ",0.76,425.25,1,425.25, Walmart    ,75224023, Pulses & Peas
-"Squash, winter, butternut, raw                                                                                    ",5.64,1672.65,1,1672.65, Walmart    ,169295, Starchy Vegetables
-"Squash, winter, acorn, raw                                                                                        ",3.36,992.25,1,992.25, Walmart    ,168472, Starchy Vegetables
 "Turnips, raw                                                                                                      ",2.66,453.6,1,453.6, Walmart    ,170465, Non-starchy Vegetables
 "Radish, raw                                                                                                       ",1.03,255.15,1,255.15, Walmart    ,75125000, Non-starchy Vegetables
 "Carrots, raw                                                                                                      ",2.4,907.2,1,907.2, Walmart    ,73101010, Non-starchy Vegetables
@@ -95,43 +131,20 @@ Frozen spinach                                                                  
 "Green onion, (scallion), bulb and greens, root removed, raw                                                       ",0.96,113.4,0.97,109.998, Walmart    ,170005, Non-starchy Vegetables
 "Shallots, bulb, peeled, raw                                                                                       ",2.88,453.5955056,0.89,403.7, Walmart    ,170499, Non-starchy Vegetables
 "Ginger root, raw                                                                                                  ",3.87,453.6,0.91,412.776, Walmart    ,169231, Non-starchy Vegetables
-"Apples, gala, with skin, raw                                                                                      ",1.58,453.6,0.85,385.56, Walmart    ,168204, Fruit
-"Apples, fuji, with skin, raw                                                                                      ",1.42,453.6,0.85,385.56, Walmart    ,167793, Fruit
-"Apples, granny smith, with skin, raw                                                                              ",1.54,453.6,0.85,385.56, Walmart    ,168203, Fruit
-"Apples, raw, golden delicious, with skin                                                                          ",1.69,453.6,0.85,385.56, Fresh Thyme,168202, Fruit
-"Apples, honeycrisp, with skin, raw                                                                                ",3.08,453.6,0.85,385.56, Walmart    ,171688, Fruit
-"Oranges, raw, navels                                                                                              ",1.24,453.6,0.7,317.52, Walmart    ,169917, Fruit
-"Mandarin, seedless, peeled, raw                                                                                   ",5.73,2268,0.8,1814.4, Walmart    ,169105, Fruit
-"Pears, bartlett, raw                                                                                              ",2.08,453.6,0.9,408.24, Walmart    ,167776, Fruit
-"Pears, green anjou, raw                                                                                           ",3,453.5483871,0.93,421.8, Walmart    ,167779, Fruit
-"Pears, bosc, raw                                                                                                  ",1.98,453.5955056,0.89,403.7, Walmart    ,167778, Fruit
-"Apricot, with skin, raw                                                                                           ",3.98,453.6,0.9,408.24, Harps      ,171697, Fruit
-"Peach, frozen                                                                                                     ",2.86,453.6,1,453.6, Walmart    ,63135620, Fruit
-"Nectarine, raw                                                                                                    ",0.97,141.75,1,141.75, Walmart    ,63131010, Fruit
-"Plum, black, with skin, raw                                                                                       ",0.97,65.205,1,65.205, Walmart    ,169949, Fruit
-"Banana, raw                                                                                                       ",0.49,453.6,0.68,308.448, Walmart    ,63107010, Fruit
-"Banana, sliced, frozen                                                                                            ",2.47,453.6,1,453.6, Walmart    ,63107010, Fruit
-"Grapes, red or green, seedless, raw                                                                               ",2.17,453.6170213,0.94,426.4, Walmart    ,63123000, Fruit
-"Blueberries, raw                                                                                                  ",2.97,453.6,1,453.6, Walmart    ,63203010, Fruit
-"Blueberries, frozen                                                                                               ",7.82,1360.8,1,1360.8, Walmart    ,63203600, Fruit
-"Strawberries, raw                                                                                                 ",2.47,453.6,1,453.6, Walmart    ,63223020, Fruit
-"Strawberries, frozen                                                                                              ",8.96,1814.4,1,1814.4, Walmart    ,63223610, Fruit
-"Blackberries, raw                                                                                                 ",4.94,340.2,1,340.2, Walmart    ,63201010, Fruit
-"Blackberries, frozen                                                                                              ",3.76,453.6,1,453.6, Walmart    ,63201600, Fruit
-"Raspberries, raw                                                                                                  ",5.64,340.2,1,340.2, Walmart    ,63219000, Fruit
-"Raspberries, frozen                                                                                               ",7.46,680.4,1,680.4, Walmart    ,63219610, Fruit
-"Mango, raw                                                                                                        ",1.06,170.1,1,170.1, Walmart    ,63129010, Fruit
-"Mango, frozen                                                                                                     ",9.42,1360.8,1,1360.8, Walmart    ,63129050, Fruit
-"Pineapple, raw                                                                                                    ",2.38,680.4,0.55,374.22, Walmart    ,63141010, Fruit
-"Pineapple, frozen                                                                                                 ",2.47,453.6,1,453.6, Walmart    ,63141200, Fruit
-"Kiwi fruit, raw                                                                                                   ",4.97,907.2,0.95,861.84, Walmart    ,63126500, Fruit
 "Avocado, Hass, peeled, raw                                                                                        ",1,113.4,1,113.4, Walmart    ,171706, Non-starchy Vegetables
-"Watermelon, raw                                                                                                   ",4.67,2268,1,2268, Walmart    ,167765, Fruit
-"Cantaloupe, raw                                                                                                   ",2.67,680.4,1,680.4, Walmart    ,63109010, Fruit
-"Honeydew melon, raw                                                                                               ",4.48,992.25,1,992.25, Walmart    ,63127010, Fruit
-Raisins                                                                                                             ,4.38,567,1,567, Walmart    ,62125100, Fruit
-"Fig, dried                                                                                                        ",5.97,226.8,1,226.8, Walmart    ,62113100, Fruit
-Date                                                                                                                ,7.99,362.88,1,362.88, Kroger     ,62110100, Fruit
+Peanut butter                                                                                                       ,6.47,1814.4,1,1814.4, Walmart    ,42202000, Nuts & Seeds
+Almond butter                                                                                                       ,4.98,340.2,1,340.2, Walmart    ,42200500, Nuts & Seeds
+"Seeds, sunflower seed butter, with salt added                                                                     ",6.98,453.6,1,453.6, Walmart    ,168595, Nuts & Seeds
+Tahini                                                                                                              ,6.48,311.85,1,311.85, Walmart    ,43103300, Nuts & Seeds
+"Peanuts, roasted, unsalted                                                                                        ",2.58,453.6,1,453.6, Walmart    ,42111110, Nuts & Seeds
+"Nuts, almonds                                                                                                     ",5.98,396.9,1,396.9, Walmart    ,170567, Nuts & Seeds
+"Nuts, walnuts, english                                                                                            ",9.96,453.6,1,453.6, Walmart    ,170187, Nuts & Seeds
+"Nuts, pecans                                                                                                      ",19.86,907.2,1,907.2, Walmart    ,170182, Nuts & Seeds
+"Pistachio nuts, lightly salted                                                                                    ",10.96,680,0.5,340, Walmart    ,42114142, Nuts & Seeds
+"Seeds, sunflower seed kernels, dried                                                                              ",2.58,453.6,1,453.6, Walmart    ,170562, Nuts & Seeds
+"Seeds, pumpkin and squash seed kernels, dried                                                                     ",3.72,226.8,1,226.8, Walmart    ,170556, Nuts & Seeds
+"Seeds, chia seeds, dried                                                                                          ",8.88,907.2,1,907.2, Walmart    ,170554, Nuts & Seeds
+Flax seeds                                                                                                          ,3.48,453.6,1,453.6, Walmart    ,43104000, Nuts & Seeds
 "Chicken, breast, boneless, skinless, raw                                                                          ",2.67,453.6,1,453.6, Walmart    ,171077, Protein
 "Chicken, thigh, boneless, skinless, raw                                                                           ",3.22,453.6,1,453.6, Walmart    ,173627, Protein
 "Chicken, thigh, bone in, meat and skin, raw                                                                       ",7.9,2268,0.7,1587.6, Walmart    ,172385, Protein
@@ -170,37 +183,24 @@ Imitation crab                                                                  
 "Fish, tuna, light, canned in water, drained solids                                                                ",0.88,141.7499999,0.797178131,113, Walmart    ,334194, Protein
 "Sardines, canned in oil                                                                                           ",1.12,106.3125,0.705467372,75, Walmart    ,26139180, Protein
 "Egg, whole, raw                                                                                                   ",2.72,672,0.89,598.08, Walmart    ,31101010, Protein
-"Milk, whole, 3.25% milkfat, with added vitamin D                                                                  ",3.78,3900,1,3900, Walmart    ,171265, Dairy & Alternatives
-"Milk, nonfat, fluid, with added vitamin A and vitamin D (fat free or skim)                                        ",3.78,3920,1,3920, Walmart    ,171269, Dairy & Alternatives
-"Milk, lactose free, whole                                                                                         ",3.38,3900,1,3900, Walmart    ,11114350, Dairy & Alternatives
-"Milk, lactose free, fat free (skim)                                                                               ",3.38,3920,1,3920, Walmart    ,11114320, Dairy & Alternatives
-"Almond milk, unsweetened                                                                                          ",2.63,1910,1,1910, Walmart    ,11350020, Dairy & Alternatives
-Soy milk                                                                                                            ,2.86,1940,1,1940, Walmart    ,11320000, Dairy & Alternatives
-"Cheese, Cheddar                                                                                                   ",6.96,907.2,1,907.2, Walmart    ,14104100, Dairy & Alternatives
-"Cheese, mozzarella, part skim milk                                                                                ",5.99,453.6,1,453.6, Yoke's     ,170847, Dairy & Alternatives
-"Cheese, mozzarella, whole milk                                                                                    ",2.74,170.1,1,170.1, Walmart    ,170845, Dairy & Alternatives
-"Cheese, mozzarella, low moisture, part-skim                                                                       ",6.96,907.2,1,907.2, Walmart    ,171244, Dairy & Alternatives
-"Cheese, mozzarella, low moisture, whole milk                                                                      ",3.74,453.6,1,453.6, Walmart    ,170846, Dairy & Alternatives
-"Cheese, Mexican blend                                                                                             ",6.96,907.2,1,907.2, Walmart    ,14120010, Dairy & Alternatives
-"Cheese, Parmesan, hard                                                                                            ",9.99,198.45,1,198.45, Kroger     ,14108020, Dairy & Alternatives
-"Cream cheese, regular, plain                                                                                      ",3.26,453.6,1,453.6, Walmart    ,14301010, Dairy & Alternatives
-"Cottage cheese, full fat, large or small curd                                                                     ",2.94,680.4,1,680.4, Walmart    ,172179, Dairy & Alternatives
-"Cheese, cottage, lowfat, 2% milkfat                                                                               ",5.24,1360.8,1,1360.8, Walmart    ,172182, Dairy & Alternatives
-"Cheese, ricotta, whole milk                                                                                       ",4.76,907.2,1,907.2, Walmart    ,170851, Dairy & Alternatives
-"Cheese, ricotta, part skim milk                                                                                   ",2.67,425.25,1,425.25, Walmart    ,171248, Dairy & Alternatives
-"Yogurt, plain, skim milk (nonfat)                                                                                 ",2.64,907.2,1,907.2, Walmart    ,170887, Dairy & Alternatives
-"Yogurt, plain, whole milk                                                                                         ",2.76,907.2,1,907.2, Walmart    ,171284, Dairy & Alternatives
-"Yogurt, Greek, plain, nonfat                                                                                      ",2.96,907.2,1,907.2, Walmart    ,170894, Dairy & Alternatives
-"Yogurt, Greek, plain, whole milk                                                                                  ",3.53,907.2,1,907.2, Walmart    ,171304, Dairy & Alternatives
-"Butter, stick, salted                                                                                             ",3.06,453.6,1,453.6, Walmart    ,81101000, Fats & Oils
-"Ghee, clarified butter                                                                                            ",7.47,368.55,1,368.55, Walmart    ,81204000, Fats & Oils
-Lard                                                                                                                ,2.14,453.6,1,453.6, Walmart    ,81202000, Fats & Oils
-"Fat, beef tallow                                                                                                  ",13.97,396.9,1,396.9, Walmart    ,171400, Fats & Oils
-Olive oil                                                                                                           ,15.38,1302,1,1302, Walmart    ,82104000, Fats & Oils
-Canola oil                                                                                                          ,9.47,3483,1,3483, Walmart    ,82105500, Fats & Oils
-"Oil, avocado                                                                                                      ",14.67,687,1,687, Walmart    ,173573, Fats & Oils
-"Oil, soybean                                                                                                      ",8.52,3471,1,3471, Walmart    ,171411, Fats & Oils
-Grapeseed oil                                                                                                       ,4.44,694,1,694, Walmart    ,82105000, Fats & Oils
-"Oil, peanut, salad or cooking                                                                                     ",17.16,3464,1,3464, Walmart    ,171410, Fats & Oils
-Sesame oil                                                                                                          ,4.98,235.2,1,235.2, Walmart    ,82107000, Fats & Oils
-Coconut oil                                                                                                         ,10.88,822.15,1,822.15, Walmart    ,82101500, Fats & Oils
+"Lentils, raw                                                                                                      ",5.98,1814.4,1,1814.4, Walmart    ,172420, Pulses & Peas
+"Beans, Black, dry                                                                                                 ",4.98,1814.4,1,1814.4, Walmart    ,173734, Pulses & Peas
+"Beans, Pinto, dry                                                                                                 ",3.76,1814.4,1,1814.4, Walmart    ,175199, Pulses & Peas
+"Beans, Navy, dry                                                                                                  ",1.28,453.6,1,453.6, Walmart    ,173745, Pulses & Peas
+"Chickpeas (garbanzo beans, bengal gram), mature seeds, raw                                                        ",1.46,453.6,1,453.6, Walmart    ,173756, Pulses & Peas
+"Peas, green, split, mature seeds, raw                                                                             ",1.42,453.6,1,453.6, Walmart    ,172428, Pulses & Peas
+"Black beans, from canned, no added fat                                                                            ",0.86,425.25,1,425.25, Walmart    ,41102080, Pulses & Peas
+"Green peas, canned, cooked, no added fat                                                                          ",0.76,425.25,1,425.25, Walmart    ,75224023, Pulses & Peas
+"Pumpkin, canned, cooked                                                                                           ",2.74,822.15,1,822.15, Walmart    ,73201013, Starchy Vegetables
+"Potatoes, russet, flesh and skin, raw (Includes foods for USDA's Food Distribution Program)                       ",3.24,2268,1,2268, Walmart    ,170027, Starchy Vegetables
+"Potatoes, red, flesh and skin, raw                                                                                ",5.74,2268,1,2268, Walmart    ,170029, Starchy Vegetables
+"Sweet potato, raw, unprepared (Includes foods for USDA's Food Distribution Program)                               ",3.18,1360.8,1,1360.8, Walmart    ,168482, Starchy Vegetables
+"Plantains, green, raw                                                                                             ",0.68,269.325,0.65,175.06125, Walmart    ,168215, Starchy Vegetables
+"Plantains, yellow, raw                                                                                            ",0.68,269.325,0.65,175.06125, Walmart    ,169130, Starchy Vegetables
+"Parsnips, raw                                                                                                     ",3.77,453.6,0.85,385.56, Walmart    ,170417, Starchy Vegetables
+"Rutabaga, raw                                                                                                     ",3.17,771.12,0.85,655.452, Walmart    ,75127000, Starchy Vegetables
+"Beets, raw                                                                                                        ",2.49,453.5526316,0.76,344.7, Kroger     ,169145, Starchy Vegetables
+"Beets, canned, cooked, no added fat                                                                               ",0.78,425.25,1,425.25, Walmart    ,75208013, Starchy Vegetables
+"Squash, winter, butternut, raw                                                                                    ",5.64,1672.65,1,1672.65, Walmart    ,169295, Starchy Vegetables
+"Squash, winter, acorn, raw                                                                                        ",3.36,992.25,1,992.25, Walmart    ,168472, Starchy Vegetables
+"Sugar, white, granulated or lump                                                                                  ",3.46,1814.4,1,1814.4, Walmart    ,91101010, Sweetener
