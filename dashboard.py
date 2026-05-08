@@ -261,19 +261,19 @@ with tab_custom:
     
     # Configure dataset based on toggle
     if data_scope == "1. Groceries Only (Price Analysis)":
-        st.info("ℹ️ **Fine Print:** Analyzing only items on your grocery list, utilizing price and economic metrics.")
+        st.info("ℹ️ **Note:** Analyzing only items on your grocery list, utilizing price and economic metrics.")
         active_df = df_economic.copy()
         available_cats = sorted([c for c in active_df['Category'].unique().tolist() if c != "Uncategorized"])
         hover_name_target = "Item"
         hover_data_target = ["Price", "Edible Yield (g)", "Energy", "NRF9.3 Score"]
     elif data_scope == "2. Food Group Analysis (Assigned Categories)":
-        st.info("ℹ️ **Fine Print:** Analyzing all items from FNDDS and SR Legacy that belong to a defined food group. Price data is excluded.")
+        st.info("ℹ️ **Note:** Analyzing all items from FNDDS and SR Legacy that belong to a defined food group. Price data is excluded.")
         active_df = df_pivoted_all[df_pivoted_all['Category'] != "Uncategorized"].copy()
         available_cats = sorted(active_df['Category'].unique().tolist())
         hover_name_target = "Main Food Description"
         hover_data_target = ["NRF9.3 Score", "Energy"]
     else:
-        st.info("ℹ️ **Fine Print:** Analyzing the entire 10,000+ item nutritional database to maximize statistical strength. Price and specific categories are excluded.")
+        st.info("ℹ️ **Note:** Analyzing the entire 10,000+ item nutritional database to maximize statistical strength. Price and specific categories are excluded.")
         active_df = df_pivoted_all.copy()
         active_df['Category'] = "All USDA Foods"
         available_cats = ["All USDA Foods"]
@@ -333,11 +333,36 @@ with tab_custom:
                 st.plotly_chart(fig, use_container_width=True, config=drawing_config)
 
             elif "Histogram" in exploration_type:
+                # 1. Prepare the data (remove NaNs to avoid calculation errors)
+                data_series = df_filtered[target_var].dropna()
+                n = len(data_series)
+                
+                if n > 1 and data_series.std() > 0:
+                    # 2. Calculate Scott's Rule: h = 3.5 * sigma / (n^(1/3))
+                    sigma = data_series.std()
+                    h = (3.5 * sigma) / (n ** (1/3))
+                    
+                    # 3. Convert bin width to bin count
+                    data_range = data_series.max() - data_series.min()
+                    optimal_bins = int(data_range / h) + 1
+                    
+                    # 4. Safety Guard: keep bins between 5 and 200
+                    optimal_bins = min(max(optimal_bins, 5), 200)
+                else:
+                    optimal_bins = 30 # Default fallback
+                    
                 fig = px.histogram(
-                    df_filtered, x=target_var, color="Category", color_discrete_map=CATEGORY_COLORS,
-                    marginal="box", nbins=50 if data_scope == "3. Overall DB Analysis (Most Statistical Strength)" else 30, template="plotly_white", height=600, 
-                    title=f"Population Spread of {target_var}"
+                    df_filtered, 
+                    x=target_var, 
+                    color="Category", 
+                    color_discrete_map=CATEGORY_COLORS,
+                    marginal="box", 
+                    nbins=optimal_bins, # Use the calculated value here
+                    template="plotly_white", 
+                    height=600, 
+                    title=f"Population Spread of {target_var} (Scott's Rule Bins: {optimal_bins})"
                 )
+                
                 fig.update_layout(barmode="overlay")
                 fig.update_traces(opacity=0.75)
                 st.plotly_chart(fig, use_container_width=True, config=drawing_config)
