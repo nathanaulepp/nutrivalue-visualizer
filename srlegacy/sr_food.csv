@@ -2734,9 +2734,6 @@ fdc_id,data_type,description,food_category_id,publication_date,total_sugar
 175061,sr_legacy_food,"Danish pastry, raspberry, unenriched",8,4/1/2019,
 172828,sr_legacy_food,"English muffins, plain, unenriched, with calcium propionate (includes sourdough)",8,4/1/2019,
 173238,sr_legacy_food,"English muffins, plain, unenriched, without calcium propionate (includes sourdough)",8,4/1/2019,
-172805,sr_legacy_food,"Leavening agents, baking powder, low-sodium",8,4/1/2019,0
-175040,sr_legacy_food,"Leavening agents, baking soda",8,4/1/2019,0
-175041,sr_legacy_food,"Leavening agents, cream of tartar",8,4/1/2019,0
 175043,sr_legacy_food,"Leavening agents, yeast, baker's, active dry",8,4/1/2019,0
 175042,sr_legacy_food,"Leavening agents, yeast, baker's, compressed",8,4/1/2019,0
 175065,sr_legacy_food,"Pie crust, standard-type, frozen, ready-to-bake, unenriched",8,4/1/2019,
@@ -2998,8 +2995,8 @@ fdc_id,data_type,description,food_category_id,publication_date,total_sugar
 170377,sr_legacy_food,"Broadbeans, immature seeds, raw",11,4/1/2019,
 169974,sr_legacy_food,"Burdock root, raw",11,4/1/2019,2.9
 169985,sr_legacy_food,"Cassava, raw",11,4/1/2019,1.7
-168538,sr_legacy_food,"Corn, sweet, white, raw",11,4/1/2019,3.22
-169998,sr_legacy_food,"Corn, sweet, yellow, raw",11,4/1/2019,6.26
+168538,sr_legacy_food,"Corn, sweet, white, raw",9,4/1/2019,3.22
+169998,sr_legacy_food,"Corn, sweet, yellow, raw",9,4/1/2019,6.26
 169220,sr_legacy_food,"Cowpeas (blackeyes), immature seeds, raw",11,4/1/2019,3
 169234,sr_legacy_food,"Hyacinth-beans, immature seeds, raw",11,4/1/2019,4.08
 169236,sr_legacy_food,"Jerusalem-artichokes, raw",11,4/1/2019,9.6
