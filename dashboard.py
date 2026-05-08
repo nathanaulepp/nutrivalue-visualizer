@@ -333,23 +333,26 @@ with tab_custom:
                 st.plotly_chart(fig, use_container_width=True, config=drawing_config)
 
             elif "Histogram" in exploration_type:
-                # 1. Prepare the data (remove NaNs to avoid calculation errors)
+                # 1. Prepare the data
                 data_series = df_filtered[target_var].dropna()
                 n = len(data_series)
                 
-                if n > 1 and data_series.std() > 0:
-                    # 2. Calculate Scott's Rule: h = 3.5 * sigma / (n^(1/3))
-                    sigma = data_series.std()
-                    h = (3.5 * sigma) / (n ** (1/3))
+                if n > 1:
+                    # 2. Freedman-Diaconis Rule (Robust to outliers)
+                    iqr = data_series.quantile(0.75) - data_series.quantile(0.25)
                     
-                    # 3. Convert bin width to bin count
-                    data_range = data_series.max() - data_series.min()
-                    optimal_bins = int(data_range / h) + 1
-                    
-                    # 4. Safety Guard: keep bins between 5 and 200
-                    optimal_bins = min(max(optimal_bins, 5), 200)
+                    if iqr > 0:
+                        # h = 2 * IQR / n^(1/3)
+                        h = (2 * iqr) / (n ** (1/3))
+                        data_range = data_series.max() - data_series.min()
+                        optimal_bins = int(data_range / h) + 1
+                        
+                        # Bumped ceiling to 500 for much finer granularity
+                        optimal_bins = min(max(optimal_bins, 10), 500)
+                    else:
+                        optimal_bins = 50 # Fallback if IQR is 0
                 else:
-                    optimal_bins = 30 # Default fallback
+                    optimal_bins = 30
                     
                 fig = px.histogram(
                     df_filtered, 
@@ -357,10 +360,10 @@ with tab_custom:
                     color="Category", 
                     color_discrete_map=CATEGORY_COLORS,
                     marginal="box", 
-                    nbins=optimal_bins, # Use the calculated value here
+                    nbins=optimal_bins,
                     template="plotly_white", 
                     height=600, 
-                    title=f"Population Spread of {target_var} (Scott's Rule Bins: {optimal_bins})"
+                    title=f"Population Spread of {target_var} (FD Rule Bins: {optimal_bins})"
                 )
                 
                 fig.update_layout(barmode="overlay")
