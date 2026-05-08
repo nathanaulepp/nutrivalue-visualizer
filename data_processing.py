@@ -18,6 +18,7 @@ def load_ultimate_library():
     
     fndds_clean = fndds_master.rename(columns={'ADD_SUGARS': 'Added Sugar'})
     fndds_clean = fndds_clean[['Food Code', 'Nutrient Value', 'Nutrient Description', 'Main Food Description', 'Added Sugar']]
+    fndds_clean['Category'] = "Uncategorized"
 
     print("Loading SR Legacy Database...")
     # --- SECTION 2: SR LEGACY DATA ---
@@ -25,6 +26,21 @@ def load_ultimate_library():
     sr_nut_val = pd.read_csv(os.path.join(BASE_DIR, 'srlegacy', 'sr_food_nutrient.csv'), low_memory=False)
     sr_nut_desc = pd.read_csv(os.path.join(BASE_DIR, 'srlegacy', 'sr_nutrient.csv'))
     sr_nut_desc = sr_nut_desc[sr_nut_desc['unit_name'] != 'kJ']
+    
+    try:
+        food_cat = pd.read_csv(os.path.join(BASE_DIR, 'srlegacy', 'food_category.csv'))
+    except FileNotFoundError:
+        try:
+            food_cat = pd.read_csv(os.path.join(BASE_DIR, 'food_category.csv'))
+        except FileNotFoundError:
+            food_cat = pd.DataFrame(columns=['id', 'description'])
+
+    if not food_cat.empty:
+        cat_mapping = food_cat[['id', 'description']].drop_duplicates().set_index('id')['description'].to_dict()
+        sr_food['Category'] = sr_food['food_category_id'].map(cat_mapping)
+    else:
+        sr_food['Category'] = "Uncategorized"
+
     sr_master = pd.merge(sr_nut_val, sr_nut_desc, left_on='nutrient_id', right_on='id')
     sr_master = pd.merge(sr_master, sr_food, on='fdc_id')
     sr_master['Added Sugar'] = 0  # Force 0 for SR Legacy
@@ -35,7 +51,7 @@ def load_ultimate_library():
         'name': 'Nutrient Description',
         'description': 'Main Food Description'
     })
-    sr_clean = sr_clean[['Food Code', 'Nutrient Value', 'Nutrient Description', 'Main Food Description', 'Added Sugar']]
+    sr_clean = sr_clean[['Food Code', 'Nutrient Value', 'Nutrient Description', 'Main Food Description', 'Added Sugar', 'Category']]
 
     print("Compiling the Ultimate Library...")
     # Combine FNDDS and SR Legacy

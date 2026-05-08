@@ -32,6 +32,7 @@ CATEGORY_COLORS = {
     "Fats & Oils": "#FFFDD0",
     "Spices & Herbs": "#220F00", 
     "Mixed Processed Foods": "#929292",           
+    "Beverages": "#00BFFF",
     "All USDA Foods": "#1f77b4" # Default color for full dataset
 }
 
@@ -100,17 +101,29 @@ with st.spinner("Crunching NRF9.3 & Economic Utility for the full database..."):
     
     df_scoring['Standard_Nutrient'] = df_scoring['Nutrient Description'].apply(smart_map)
     
-    # [NEW FIX] Extract the Added Sugar column before it gets dropped by the pivot
+    # Extract the Added Sugar column before it gets dropped by the pivot
     df_sugars = df_scoring[['Food Code', 'Added Sugar']].drop_duplicates().groupby('Food Code')['Added Sugar'].max().reset_index()
+    # Extract the Category column
+    if 'Category' not in df_scoring.columns:
+        df_scoring['Category'] = "Uncategorized"
+    df_cats = df_scoring[['Food Code', 'Category']].drop_duplicates().groupby('Food Code')['Category'].first().reset_index()
 
     # Pivot to get one row per food
     df_pivoted_all = df_scoring.dropna(subset=['Standard_Nutrient']).pivot_table(
         index=['Food Code', 'Main Food Description'], columns='Standard_Nutrient', values='Nutrient Value', aggfunc='max'
     ).reset_index().fillna(0)
 
-    # [NEW FIX] Merge the Added Sugar data back into the pivoted dataset
+    # Merge the Added Sugar and Category data back into the pivoted dataset
     df_pivoted_all = pd.merge(df_pivoted_all, df_sugars, on='Food Code', how='left')
+    df_pivoted_all = pd.merge(df_pivoted_all, df_cats, on='Food Code', how='left')
     df_pivoted_all['Added Sugar'] = df_pivoted_all['Added Sugar'].fillna(0)
+    df_pivoted_all['Category'] = df_pivoted_all['Category'].fillna("Uncategorized")
+    
+    # Also update FNDDS categories based on price_data if they are Uncategorized
+    price_cat_map = df_prices.set_index('Food Code')['Category'].to_dict()
+    df_pivoted_all['Category'] = df_pivoted_all.apply(
+        lambda row: price_cat_map.get(row['Food Code'], row['Category']), axis=1
+    )
 
     # NRF9.3 CALCULATION (Per 100 kcals) for ALL ITEMS
     if 'Energy' not in df_pivoted_all.columns: df_pivoted_all['Energy'] = 0
@@ -136,7 +149,7 @@ with st.spinner("Crunching NRF9.3 & Economic Utility for the full database..."):
     df_pivoted_all['NRF9.3 Score'] = round(nr9_total - lim3_total, 1)
 
     # ECONOMIC UTILITY MATH (Only applies to foods with prices)
-    df_economic = pd.merge(df_prices, df_pivoted_all, on='Food Code', how='inner')
+    df_economic = pd.merge(df_prices.drop(columns=['Category'], errors='ignore'), df_pivoted_all, on='Food Code', how='inner')
     
     df_economic['Cost per 100g ($)'] = (df_economic['Price'] / df_economic['Edible Yield (g)']) * 100
     df_economic['Protein per Dollar (g)'] = df_economic.apply(
@@ -169,7 +182,7 @@ tab_matrix, tab_custom = st.tabs(["🧭 Strategic Matrices", "🎛️ Custom Exp
 with tab_matrix:
     st.markdown("*Note: Strategic Matrices require price data and only display items from your grocery list.*")
     col_matrix_plot, col_matrix_controls = st.columns([3, 1])
-    available_cats_econ = sorted(df_economic['Category'].unique().tolist())
+    available_cats_econ = sorted([c for c in df_economic['Category'].unique().tolist() if c != "Uncategorized"])
 
     with col_matrix_controls:
         st.write("### 🧠 Select Strategic Scatterplot")
@@ -234,23 +247,38 @@ with tab_custom:
         
     with col_header_2:
         st.write("### 🌐 Data Scope")
-        use_full_dataset = st.toggle("Include All USDA Data", value=False, help="Toggle to explore the full 10,000+ item nutritional database without price constraints.")
+        data_scope = st.radio(
+            "Select Data Scope:",
+            [
+                "1. Groceries Only (Price Analysis)",
+                "2. Food Group Analysis (Assigned Categories)",
+                "3. Overall DB Analysis (Most Statistical Strength)"
+            ],
+            help="Choose between analyzing just your groceries, all foods with defined categories, or the entire database combined."
+        )
         
     st.markdown("---")
     
     # Configure dataset based on toggle
-    if use_full_dataset:
-        st.info("ℹ️ **Fine Print:** Currently visualizing the full USDA nutritional dataset. Price and Category data are specific to your grocery list and are excluded in this view.")
+    if data_scope == "1. Groceries Only (Price Analysis)":
+        st.info("ℹ️ **Fine Print:** Analyzing only items on your grocery list, utilizing price and economic metrics.")
+        active_df = df_economic.copy()
+        available_cats = sorted([c for c in active_df['Category'].unique().tolist() if c != "Uncategorized"])
+        hover_name_target = "Item"
+        hover_data_target = ["Price", "Edible Yield (g)", "Energy", "NRF9.3 Score"]
+    elif data_scope == "2. Food Group Analysis (Assigned Categories)":
+        st.info("ℹ️ **Fine Print:** Analyzing all items from FNDDS and SR Legacy that belong to a defined food group. Price data is excluded.")
+        active_df = df_pivoted_all[df_pivoted_all['Category'] != "Uncategorized"].copy()
+        available_cats = sorted(active_df['Category'].unique().tolist())
+        hover_name_target = "Main Food Description"
+        hover_data_target = ["NRF9.3 Score", "Energy"]
+    else:
+        st.info("ℹ️ **Fine Print:** Analyzing the entire 10,000+ item nutritional database to maximize statistical strength. Price and specific categories are excluded.")
         active_df = df_pivoted_all.copy()
         active_df['Category'] = "All USDA Foods"
         available_cats = ["All USDA Foods"]
         hover_name_target = "Main Food Description"
         hover_data_target = ["NRF9.3 Score", "Energy"]
-    else:
-        active_df = df_economic.copy()
-        available_cats = sorted(active_df['Category'].unique().tolist())
-        hover_name_target = "Item"
-        hover_data_target = ["Price", "Edible Yield (g)", "Energy"]
 
     col_plot, col_controls = st.columns([3, 1])
 
@@ -263,7 +291,7 @@ with tab_custom:
             st.write("### ⚙️ Axes Controls")
             x_axis = st.selectbox("X-Axis:", numeric_options, index=numeric_options.index('Cost per 100g ($)') if 'Cost per 100g ($)' in numeric_options else 0)
             y_axis = st.selectbox("Y-Axis:", numeric_options, index=numeric_options.index('NRF9.3 Score') if 'NRF9.3 Score' in numeric_options else 1)
-            if not use_full_dataset:
+            if data_scope != "3. Overall DB Analysis (Most Statistical Strength)":
                 st.write("### 🏷️ Filter Categories")
                 selected_cats = st.multiselect("Toggle visibility:", available_cats, default=available_cats, key="scatter_cats")
             else: selected_cats = available_cats
@@ -271,7 +299,7 @@ with tab_custom:
         elif exploration_type in ["📦 Box Plot", "📊 Histogram", "📉 Grouped Bar Chart"]:
             st.write("### ⚙️ Data Control")
             target_var = st.selectbox("Select Variable to Analyze:", numeric_options, index=numeric_options.index('NRF9.3 Score') if 'NRF9.3 Score' in numeric_options else 0)
-            if not use_full_dataset:
+            if data_scope != "3. Overall DB Analysis (Most Statistical Strength)":
                 st.write("### 🏷️ Filter Categories")
                 selected_cats = st.multiselect("Toggle visibility:", available_cats, default=available_cats, key="dist_cats")
             else: selected_cats = available_cats
@@ -293,7 +321,7 @@ with tab_custom:
                     hover_name=hover_name_target, hover_data=hover_data_target,
                     template="plotly_white", height=600, title=f"{y_axis} vs {x_axis}"
                 )
-                fig.update_traces(marker=dict(size=12 if use_full_dataset else 14, opacity=0.7 if use_full_dataset else 0.85, line=dict(width=1, color='DarkSlateGrey')))
+                fig.update_traces(marker=dict(size=12 if data_scope == "3. Overall DB Analysis (Most Statistical Strength)" else 14, opacity=0.7 if data_scope == "3. Overall DB Analysis (Most Statistical Strength)" else 0.85, line=dict(width=1, color='DarkSlateGrey')))
                 st.plotly_chart(fig, use_container_width=True, config=drawing_config)
 
             elif "Box Plot" in exploration_type:
@@ -307,7 +335,7 @@ with tab_custom:
             elif "Histogram" in exploration_type:
                 fig = px.histogram(
                     df_filtered, x=target_var, color="Category", color_discrete_map=CATEGORY_COLORS,
-                    marginal="box", nbins=50 if use_full_dataset else 30, template="plotly_white", height=600, 
+                    marginal="box", nbins=50 if data_scope == "3. Overall DB Analysis (Most Statistical Strength)" else 30, template="plotly_white", height=600, 
                     title=f"Population Spread of {target_var}"
                 )
                 fig.update_layout(barmode="overlay")
@@ -333,4 +361,4 @@ with tab_custom:
                 st.plotly_chart(fig, use_container_width=True)
 
 with st.expander("🔍 View Detailed Data Table"):
-    st.dataframe(active_df if use_full_dataset else df_economic, use_container_width=True, hide_index=True)
+    st.dataframe(active_df, use_container_width=True, hide_index=True)
