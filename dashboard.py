@@ -260,7 +260,7 @@ with tab_custom:
         hover_name_target = "Item"
         hover_data_target = ["Price", "Edible Yield (g)", "Energy", "NRF9.3 Score"]
     else:
-        st.info("ℹ️ **Note:** Analyzing the perfectly unified SR Legacy and FNDDS database, powered by your new categorization tags.")
+        st.info("ℹ️ **Note:** Analyzing revised and unified SR Legacy and FNDDS databases.")
         active_df = df_pivoted_all[df_pivoted_all['Category'] != "Uncategorized"].copy()
         available_cats = sorted(active_df['Category'].unique().tolist())
         hover_name_target = "Main Food Description"
