@@ -96,8 +96,6 @@ with st.spinner("Crunching NRF9.3 & Economic Utility for the unified database...
     # Ensure Food Codes match for merging
     df_ultimate_master['Food Code'] = df_ultimate_master['Food Code'].astype(str).str.split('.').str[0].str.strip()
     df_prices['Food Code'] = df_prices['Food Code'].astype(str).str.split('.').str[0].str.strip()
-    
-    # Since the new matrix is already pivoted, we just copy it
     df_pivoted_all = df_ultimate_master.copy()
     
     # Clean up Sugar and Category nulls
@@ -341,13 +339,26 @@ with tab_custom:
                 st.plotly_chart(fig, use_container_width=True, config=drawing_config)
 
             elif "Heatmap" in exploration_type:
-                corr_matrix = df_filtered[numeric_options].corr()
-                fig = px.imshow(
-                    corr_matrix, text_auto=".2f" if len(numeric_options) < 15 else False, aspect="auto", 
-                    color_continuous_scale="RdBu_r", zmin=-1, zmax=1,
-                    template="plotly_white", height=800, title="Variable Correlation Matrix"
+                # Add a multi-select for the user to pick columns
+                heatmap_vars = st.multiselect(
+                    "Select variables for Correlation Matrix:", 
+                    options=numeric_options, default=numeric_options[:5] # Default to first 5 to keep it clean initially
                 )
-                st.plotly_chart(fig, use_container_width=True)
+                if len(heatmap_vars) > 1:
+                    corr_matrix = df_filtered[heatmap_vars].corr()
+                    fig = px.imshow(
+                        corr_matrix, 
+                        text_auto=".2f" if len(heatmap_vars) < 15 else False, 
+                        aspect="auto", 
+                        color_continuous_scale="RdBu_r", 
+                        zmin=-1, zmax=1,
+                        template="plotly_white", 
+                        height=800, 
+                        title="Variable Correlation Matrix"
+                    )
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.info("Please select at least two variables to view correlations.")
 
 with st.expander("🔍 View Detailed Data Table"):
     st.dataframe(active_df, use_container_width=True, hide_index=True)
