@@ -305,9 +305,9 @@ with tab_custom:
             df_filtered = active_df[active_df['Category'].isin(selected_cats)].copy()
             
             if "Scatterplot" in exploration_type:
-                # 🧹 We can go back to just passing 'r_axis' directly!
+                df_clean = df_filtered.dropna(subset=[x_axis, y_axis, r_axis])
                 fig = px.scatter(
-                    df_filtered, x=x_axis, y=y_axis, color="Category", color_discrete_map=CATEGORY_COLORS, 
+                    df_clean, x=x_axis, y=y_axis, color="Category", color_discrete_map=CATEGORY_COLORS, 
                     size=r_axis, size_max=25, hover_name=hover_name_target, hover_data=hover_data_target,
                     template="plotly_white", height=600, title=f"{y_axis} vs {x_axis}"
                 )
