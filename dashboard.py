@@ -295,7 +295,7 @@ with tab_custom:
             selected_cats = available_cats
 
     with col_plot:
-        if not selected_cats and "Heatmap" or "📊 Histogram" not in exploration_type:
+        if not selected_cats and ("Heatmap" or "📊 Histogram" or "Scatterplot") not in exploration_type:
             st.warning("Please select at least one category.")
         else:
             df_filtered = active_df[active_df['Category'].isin(selected_cats)].copy()
