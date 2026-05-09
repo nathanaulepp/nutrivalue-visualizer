@@ -339,26 +339,46 @@ with tab_custom:
                 st.plotly_chart(fig, use_container_width=True, config=drawing_config)
 
             elif "Heatmap" in exploration_type:
-                # Add a multi-select for the user to pick columns
-                heatmap_vars = st.multiselect(
-                    "Select variables for Correlation Matrix:", 
-                    options=numeric_options, default=numeric_options[:5] # Default to first 5 to keep it clean initially
-                )
-                if len(heatmap_vars) > 1:
-                    corr_matrix = df_filtered[heatmap_vars].corr()
+                st.subheader("Variable Correlation Matrix")
+
+                # 1. Wrap the inputs in a form to prevent auto-reloading on every click
+                with st.form("heatmap_form"):
+                    st.write("Select variables to compare:")
+        
+                    # 2. Use an expander to act as an organized, collapsible "dropdown"
+                    with st.expander("Nutrient Options (Click to expand and select)"):
+                        selected_vars = []
+            
+                        # Create 4 columns for a clean, organized checkbox grid
+                        cols = st.columns(4) 
+            
+                        # 3. Loop through all numeric options to create checkboxes
+                        for i, col_name in enumerate(numeric_options):
+                            # Default the first 5 to True so the chart isn't empty on first load
+                            is_default = i < 5 
+                
+                            # Distribute checkboxes evenly across the 4 columns
+                            if cols[i % 4].checkbox(col_name, value=is_default, key=f"chk_{col_name}"):
+                                selected_vars.append(col_name)
+
+                    # 4. The user clicks this button to apply all selections at once
+                    submit_button = st.form_submit_button("Generate Heatmap")
+
+                # 5. Render the plot using the variables collected from the checkboxes
+                if len(selected_vars) > 1:
+                    corr_matrix = df_filtered[selected_vars].corr()
                     fig = px.imshow(
                         corr_matrix, 
-                        text_auto=".2f" if len(heatmap_vars) < 15 else False, 
+                        text_auto=".2f" if len(selected_vars) < 15 else False, 
                         aspect="auto", 
                         color_continuous_scale="RdBu_r", 
                         zmin=-1, zmax=1,
                         template="plotly_white", 
-                        height=800, 
-                        title="Variable Correlation Matrix"
+                        height=800
                     )
                     st.plotly_chart(fig, use_container_width=True)
                 else:
-                    st.info("Please select at least two variables to view correlations.")
+                    st.warning("Please select at least two variables to view correlations.")
 
 with st.expander("🔍 View Detailed Data Table"):
     st.dataframe(active_df, use_container_width=True, hide_index=True)
