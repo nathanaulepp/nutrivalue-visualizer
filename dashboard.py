@@ -235,7 +235,7 @@ with tab_custom:
         st.write("### 🔬 Select Statistical Exploration")
         exploration_type = st.radio(
             "Choose chart type:",
-            ["📈 Scatterplot", "📦 Box Plot", "📊 Histogram", "📉 Grouped Bar Chart", "🔥 Correlation Heatmap"],
+            ["📈 Scatterplot", "📊 Histogram", "📦 Box Plot", "📉 Grouped Bar Chart", "🔥 Correlation Heatmap"],
             horizontal=True
         )
         
@@ -277,15 +277,18 @@ with tab_custom:
             st.write("### ⚙️ Axes Controls")
             x_axis = st.selectbox("X-Axis:", numeric_options, index=numeric_options.index('Cost per 100g ($)') if 'Cost per 100g ($)' in numeric_options else 0)
             y_axis = st.selectbox("Y-Axis:", numeric_options, index=numeric_options.index('NRF9.3 Score') if 'NRF9.3 Score' in numeric_options else 1)
-            st.write("### 🏷️ Filter Categories")
-            selected_cats = st.multiselect("Toggle visibility:", available_cats, default=available_cats, key="scatter_cats")
-            
-        elif exploration_type in ["📦 Box Plot", "📊 Histogram", "📉 Grouped Bar Chart"]:
+            r_axis = st.selectbox("Bubble Sizes:", numeric_options, index=numeric_options.index('Energy') if 'Energy' in numeric_options else 2)
+
+        elif "📊 Histogram" in exploration_type:
+            st.write("### ⚙️ Data Control")
+            target_var = st.selectbox("Select Variable to Analyze:", numeric_options, index=numeric_options.index('NRF9.3 Score') if 'NRF9.3 Score' in numeric_options else 0)
+
+        elif exploration_type in ["📦 Box Plot", "📉 Grouped Bar Chart"]:
             st.write("### ⚙️ Data Control")
             target_var = st.selectbox("Select Variable to Analyze:", numeric_options, index=numeric_options.index('NRF9.3 Score') if 'NRF9.3 Score' in numeric_options else 0)
             st.write("### 🏷️ Filter Categories")
             selected_cats = st.multiselect("Toggle visibility:", available_cats, default=available_cats, key="dist_cats")
-            
+
         elif "Heatmap" in exploration_type:
             st.write("### ⚙️ Heatmap Info")
             st.caption("Compares all available numeric variables to find correlations (1.0 = perfect positive correlation, -1.0 = perfect negative correlation).")
@@ -300,7 +303,7 @@ with tab_custom:
             if "Scatterplot" in exploration_type:
                 fig = px.scatter(
                     df_filtered, x=x_axis, y=y_axis, color="Category", color_discrete_map=CATEGORY_COLORS, 
-                    hover_name=hover_name_target, hover_data=hover_data_target,
+                    size=r_axis, size_max=25, hover_name=hover_name_target, hover_data=hover_data_target,
                     template="plotly_white", height=600, title=f"{y_axis} vs {x_axis}"
                 )
                 fig.update_traces(marker=dict(size=10, opacity=0.85, line=dict(width=1, color='DarkSlateGrey')))
