@@ -420,7 +420,12 @@ with tab_custom:
                                 if grid_cols[j % 4].checkbox(col_name, value=is_default, key=f"chk_{col_name}"):
                                     selected_vars.append(col_name)
 
-                    submit_button = st.form_submit_button("Generate Correlation Matrix", type="primary")
+                    # --- VISUAL SEPARATOR & WIDE BUTTON ---
+                    # Ensure this is strictly outdented so it aligns with the 'for' loop above it
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.info("💡 **Tip:** Selections from *all* tabs will be combined into a single matrix.")
+                    
+                    submit_button = st.form_submit_button("Generate Correlation Matrix", type="primary", use_container_width=True)
 
                 # 2. Generate the matrix based on form submission
                 if len(selected_vars) > 1:
