@@ -273,6 +273,7 @@ with tab_custom:
     if 'Food Code' in numeric_options: numeric_options.remove('Food Code')
 
     with col_controls:
+        selected_cats = available_cats
         if "Scatterplot" in exploration_type:
             st.write("### ⚙️ Axes Controls")
             x_axis = st.selectbox("X-Axis:", numeric_options, index=numeric_options.index('Cost per 100g ($)') if 'Cost per 100g ($)' in numeric_options else 0)
@@ -295,7 +296,7 @@ with tab_custom:
             selected_cats = available_cats
 
     with col_plot:
-        if not selected_cats and ("Heatmap" or "📊 Histogram" or "Scatterplot") not in exploration_type:
+        if not selected_cats:
             st.warning("Please select at least one category.")
         else:
             df_filtered = active_df[active_df['Category'].isin(selected_cats)].copy()
