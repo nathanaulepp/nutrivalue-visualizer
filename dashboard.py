@@ -341,12 +341,20 @@ with tab_custom:
             elif "Heatmap" in exploration_type:
                 st.subheader("Variable Correlation Matrix")
 
-                # 1. Expert UI: Dynamically categorize columns for Tab organization
+                # 1. Clean up legacy 'per 100 kcal' columns (keep NRF9.3 and other scores)
+                clean_options = [
+                    col for col in numeric_options 
+                    if ("per 100 kcal" not in col.lower() or "nrf" in col.lower())
+                ]
+
+                # Dynamically categorize columns for Tab organization
                 def categorize_nutrient(col_name):
                     lower_col = col_name.lower()
                     macros = ['protein', 'lipid', 'carbohydrate', 'energy', 'water', 'alcohol', 'fiber', 'sugar']
                     
-                    if any(m in lower_col for m in macros) and 'fatty acid' not in lower_col:
+                    if 'nrf' in lower_col or 'score' in lower_col:
+                        return "Scores & Indices"
+                    elif any(m in lower_col for m in macros) and 'fatty acid' not in lower_col:
                         return "Macronutrients"
                     elif any(m in lower_col for m in ['calcium', 'iron', 'magnesium', 'phosphorus', 'potassium', 'sodium', 'zinc', 'copper', 'selenium']):
                         return "Minerals"
@@ -359,76 +367,90 @@ with tab_custom:
 
                 # Group the available columns
                 nutrient_groups = {}
-                for col in numeric_options:
+                for col in clean_options:
                     group = categorize_nutrient(col)
                     if group not in nutrient_groups:
                         nutrient_groups[group] = []
                     nutrient_groups[group].append(col)
 
                 with st.form("heatmap_form"):
-                    # 2. Add the Basis toggle
-                    st.write("### 1. Select Correlation Basis")
-                    basis = st.radio(
-                        "Calculate correlations based on:", 
-                        options=["Per 100g", "Per 100 kcal"],
-                        horizontal=True,
-                        help="Per 100g is the FDC standard. Per 100 kcal normalizes nutrients to energy density."
-                    )
+                    st.write("### Select Variables to Compare")
+                    st.write("You can select variables from either or both bases to find cross-correlations.")
+                    
+                    selected_100g = []
+                    selected_100kcal = []
+                    
+                    # 2a. Top Level Basis 1: Per 100g
+                    with st.expander("📌 Variables: Per 100g Basis", expanded=True):
+                        tabs_100g = st.tabs(list(nutrient_groups.keys()))
+                        for i, (group_name, cols_in_group) in enumerate(nutrient_groups.items()):
+                            with tabs_100g[i]:
+                                grid_cols = st.columns(4)
+                                for j, col_name in enumerate(cols_in_group):
+                                    # Default selection to ensure chart renders initially
+                                    is_default = col_name in ["Protein (g)", "Total lipid (g)", "Energy (kcal)", "NRF9.3"]
+                                    if grid_cols[j % 4].checkbox(col_name, value=is_default, key=f"100g_{col_name}"):
+                                        selected_100g.append(col_name)
 
-                    st.write("### 2. Select Variables to Compare")
-                    selected_vars = []
-                    
-                    # 3. Create interactive tabs based on our dynamic groups
-                    tabs = st.tabs(list(nutrient_groups.keys()))
-                    
-                    for i, (group_name, cols_in_group) in enumerate(nutrient_groups.items()):
-                        with tabs[i]:
-                            # 4-column layout for scannability inside each tab
-                            grid_cols = st.columns(4)
-                            for j, col_name in enumerate(cols_in_group):
-                                # Default selection to ensure the chart renders initially
-                                is_default = col_name in ["Protein (g)", "Total lipid (g)", "Carbohydrate (g)", "Energy (kcal)", "Fiber, total dietary (g)"]
-                                if grid_cols[j % 4].checkbox(col_name, value=is_default, key=f"chk_{col_name}"):
-                                    selected_vars.append(col_name)
+                    # 2b. Top Level Basis 2: Per 100 kcal
+                    with st.expander("⚡ Variables: Per 100 kcal Basis (Energy Density)", expanded=False):
+                        tabs_100k = st.tabs(list(nutrient_groups.keys()))
+                        for i, (group_name, cols_in_group) in enumerate(nutrient_groups.items()):
+                            with tabs_100k[i]:
+                                grid_cols = st.columns(4)
+                                for j, col_name in enumerate(cols_in_group):
+                                    # No defaults here to prevent visual clutter on load
+                                    if grid_cols[j % 4].checkbox(col_name, value=False, key=f"100k_{col_name}"):
+                                        selected_100kcal.append(col_name)
 
                     submit_button = st.form_submit_button("Generate Correlation Matrix", type="primary")
 
-                # 4. Generate the matrix based on form submission
-                if len(selected_vars) > 1:
-                    df_corr = df_filtered[selected_vars].copy()
-
-                    # Execute "Per 100 kcal" transformation if selected
-                    if basis == "Per 100 kcal" and "Energy (kcal)" in df_filtered.columns:
-                        # Prevent DivisionByZero errors by temporarily swapping 0 for NaN
+                # 3. Generate the matrix based on form submission
+                total_selected = len(selected_100g) + len(selected_100kcal)
+                
+                if total_selected > 1:
+                    # Build a fresh dataframe for correlation
+                    df_corr = pd.DataFrame(index=df_filtered.index)
+                    
+                    # Add the standard 100g variables
+                    for col in selected_100g:
+                        df_corr[col] = df_filtered[col]
+                        
+                    # Add and transform the 100 kcal variables
+                    if len(selected_100kcal) > 0 and "Energy (kcal)" in df_filtered.columns:
                         energy_col = df_filtered["Energy (kcal)"].replace(0, pd.NA)
                         
-                        for col in selected_vars:
-                            # We don't scale Energy by Energy (it would just be 100 across the board)
-                            if col != "Energy (kcal)":
-                                df_corr[col] = (df_corr[col] / energy_col) * 100
+                        for col in selected_100kcal:
+                            # Dividing Energy by Energy yields a constant (breaks correlation)
+                            # Dividing NRF9.3 by Energy ruins the score's math
+                            if col in ["Energy (kcal)", "NRF9.3"]:
+                                continue 
+                            
+                            # Append a tag to the name so it doesn't overwrite the 100g version
+                            new_col_name = f"{col} (per 100 kcal)"
+                            df_corr[new_col_name] = (df_filtered[col] / energy_col) * 100
                         
-                        # Drop foods that had 0 kcal so they don't break the correlation math
                         df_corr = df_corr.dropna(how='all')
 
                     # Calculate correlation
                     corr_matrix = df_corr.corr()
 
-                    # 5. Dynamic height based on selection volume
-                    dynamic_height = max(700, len(selected_vars) * 35)
+                    # Dynamic height based on selection volume
+                    dynamic_height = max(700, total_selected * 35)
 
                     fig = px.imshow(
                         corr_matrix, 
-                        text_auto=".2f" if len(selected_vars) <= 15 else False, 
+                        text_auto=".2f" if total_selected <= 15 else False, 
                         aspect="auto", 
                         color_continuous_scale="RdBu_r", 
                         zmin=-1, zmax=1,
                         template="plotly_white", 
                         height=dynamic_height, 
-                        title=f"Variable Correlation Matrix ({basis})"
+                        title="Multi-Basis Correlation Matrix"
                     )
                     st.plotly_chart(fig, use_container_width=True)
                 else:
-                    st.warning("Please select at least two variables to view correlations.")
+                    st.warning("Please select at least two variables across either basis to view correlations.")
 
 with st.expander("🔍 View Detailed Data Table"):
     st.dataframe(active_df, use_container_width=True, hide_index=True)
