@@ -281,9 +281,8 @@ with tab_custom:
             # X and Y can still be anything, including negative scores
             x_axis = st.selectbox("X-Axis:", numeric_options, index=numeric_options.index('Cost per 100g ($)') if 'Cost per 100g ($)' in numeric_options else 0)
             y_axis = st.selectbox("Y-Axis:", numeric_options, index=numeric_options.index('NRF9.3 Score') if 'NRF9.3 Score' in numeric_options else 1)
-            size_options = [col for col in numeric_options if active_df[col].dropna().min() >= 0]
-            default_size_index = size_options.index('Energy') if 'Energy' in size_options else 0
-            r_axis = st.selectbox("Bubble Sizes:", size_options, index=default_size_index)
+            size_options = ["None"] + [col for col in numeric_options if active_df[col].dropna().min() >= 0]
+            r_axis = st.selectbox("Bubble Sizes:", size_options, index=0)
 
         elif "📊 Histogram" in exploration_type:
             st.write("### ⚙️ Data Control")
@@ -307,10 +306,18 @@ with tab_custom:
             df_filtered = active_df[active_df['Category'].isin(selected_cats)].copy()
             
             if "Scatterplot" in exploration_type:
-                df_clean = df_filtered.dropna(subset=[x_axis, y_axis, r_axis])
+                # FIX: Conditionally build the dropna subset so "None" doesn't trigger an error
+                subset_cols = [x_axis, y_axis]
+                if r_axis != "None":
+                    subset_cols.append(r_axis)
+                    
+                df_clean = df_filtered.dropna(subset=subset_cols)
+                
+                # FIX: Set size parameter to Python's None type if the string "None" is selected
                 fig = px.scatter(
                     df_clean, x=x_axis, y=y_axis, color="Category", color_discrete_map=CATEGORY_COLORS, 
-                    size=r_axis, size_max=25, hover_name=hover_name_target, hover_data=hover_data_target,
+                    size=None if r_axis == "None" else r_axis, size_max=25, 
+                    hover_name=hover_name_target, hover_data=hover_data_target,
                     template="plotly_white", height=600, title=f"{y_axis} vs {x_axis}"
                 )
                 fig.update_traces(marker=dict(opacity=0.85, line=dict(width=1, color='DarkSlateGrey')))
