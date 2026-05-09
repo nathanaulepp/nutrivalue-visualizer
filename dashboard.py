@@ -112,11 +112,7 @@ with st.spinner("Crunching NRF9.3 & Economic Utility for the unified database...
     df_prices['Food Code'] = df_prices['Food Code'].astype(str).str.split('.').str[0].str.strip()
     df_pivoted_all = df_ultimate_master.copy()
     
-    # Clean up Sugar and Category nulls
-    if 'Added Sugar' not in df_pivoted_all.columns: df_pivoted_all['Added Sugar'] = 0
     if 'Category' not in df_pivoted_all.columns: df_pivoted_all['Category'] = "Uncategorized"
-    
-    df_pivoted_all['Added Sugar'] = df_pivoted_all['Added Sugar'].fillna(0)
     df_pivoted_all['Category'] = df_pivoted_all['Category'].fillna("Uncategorized")
     
     # Overwrite Master DB categories with custom Price Data categories if they exist
@@ -125,10 +121,16 @@ with st.spinner("Crunching NRF9.3 & Economic Utility for the unified database...
         lambda row: price_cat_map.get(row['Food Code'], row['Category']), axis=1
     )
 
-    # NRF9.3 CALCULATION (Per 100 kcals) for ALL ITEMS
+    # Define nutrient groups
     nr9_cols = ['Protein', 'Fiber', 'Vitamin A', 'Vitamin C', 'Vitamin E', 'Calcium', 'Iron', 'Magnesium', 'Potassium']
     lim3_cols = ['Saturated Fat', 'Added Sugar', 'Sodium']
     
+    # FIX: Drop items with nulls in critical lim3 categories
+    lim3_check_cols = lim3_cols + [NRF_CSV_COLS[nut] for nut in lim3_cols]
+    existing_lim3_cols = [col for col in lim3_check_cols if col in df_pivoted_all.columns]
+    df_pivoted_all = df_pivoted_all.dropna(subset=existing_lim3_cols)
+
+    # NRF9.3 CALCULATION (Per 100 kcals) for ALL ITEMS
     nr9_total = 0
     for nut in nr9_cols:
         col_name = NRF_CSV_COLS[nut] # Look up the exact CSV column name
@@ -138,7 +140,7 @@ with st.spinner("Crunching NRF9.3 & Economic Utility for the unified database...
     lim3_total = 0
     for nut in lim3_cols:
         col_name = NRF_CSV_COLS[nut]
-        lim3_total += (df_pivoted_all[col_name].fillna(0) / DV_MAPPING[nut]) * 100
+        lim3_total += (df_pivoted_all[col_name] / DV_MAPPING[nut]) * 100
         
     df_pivoted_all['NRF9.3 Score'] = round(nr9_total - lim3_total, 1)
 
