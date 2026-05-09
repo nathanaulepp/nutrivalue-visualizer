@@ -276,9 +276,12 @@ with tab_custom:
         selected_cats = available_cats
         if "Scatterplot" in exploration_type:
             st.write("### ⚙️ Axes Controls")
+            # X and Y can still be anything, including negative scores
             x_axis = st.selectbox("X-Axis:", numeric_options, index=numeric_options.index('Cost per 100g ($)') if 'Cost per 100g ($)' in numeric_options else 0)
             y_axis = st.selectbox("Y-Axis:", numeric_options, index=numeric_options.index('NRF9.3 Score') if 'NRF9.3 Score' in numeric_options else 1)
-            r_axis = st.selectbox("Bubble Sizes:", numeric_options, index=numeric_options.index('Energy') if 'Energy' in numeric_options else 2)
+            size_options = [col for col in numeric_options if active_df[col].dropna().min() >= 0]
+            default_size_index = size_options.index('Energy') if 'Energy' in size_options else 0
+            r_axis = st.selectbox("Bubble Sizes:", size_options, index=default_size_index)
 
         elif "📊 Histogram" in exploration_type:
             st.write("### ⚙️ Data Control")
@@ -302,12 +305,13 @@ with tab_custom:
             df_filtered = active_df[active_df['Category'].isin(selected_cats)].copy()
             
             if "Scatterplot" in exploration_type:
+                # 🧹 We can go back to just passing 'r_axis' directly!
                 fig = px.scatter(
                     df_filtered, x=x_axis, y=y_axis, color="Category", color_discrete_map=CATEGORY_COLORS, 
                     size=r_axis, size_max=25, hover_name=hover_name_target, hover_data=hover_data_target,
                     template="plotly_white", height=600, title=f"{y_axis} vs {x_axis}"
                 )
-                fig.update_traces(marker=dict(size=10, opacity=0.85, line=dict(width=1, color='DarkSlateGrey')))
+                fig.update_traces(marker=dict(opacity=0.85, line=dict(width=1, color='DarkSlateGrey')))
                 st.plotly_chart(fig, use_container_width=True, config=drawing_config)
 
             elif "Box Plot" in exploration_type:
