@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from data_processing import load_ultimate_library
 
 # ==========================================
 # 1. CONFIGURATION & STANDARDS
@@ -46,7 +45,29 @@ DV_MAPPING = {
 # ==========================================
 @st.cache_data
 def get_master_data():
-    return load_ultimate_library()
+    # Load the new pre-cleaned matrix
+    df = pd.read_csv('updated_05082026_cleaned_nutrient_matrix.csv', low_memory=False)
+    
+    # Rename columns to perfectly match the dashboard's calculation engine
+    df = df.rename(columns={
+        'fdc_id': 'Food Code',
+        'description': 'Main Food Description',
+        'food_category_id': 'Category',
+        'Energy (kcal)': 'Energy',
+        'Protein (g)': 'Protein',
+        'Fiber, total dietary (g)': 'Fiber',
+        'Vitamin A, RAE (ug)': 'Vitamin A',
+        'Vitamin C, total ascorbic acid (mg)': 'Vitamin C',
+        'Vitamin E (alpha-tocopherol) (mg)': 'Vitamin E',
+        'Calcium, Ca (mg)': 'Calcium',
+        'Iron, Fe (mg)': 'Iron',
+        'Magnesium, Mg (mg)': 'Magnesium',
+        'Potassium, K (mg)': 'Potassium',
+        'Fatty acids, total saturated (g)': 'Saturated Fat',
+        'Sodium, Na (mg)': 'Sodium',
+        'Sugars, added (g)': 'Added Sugar'
+    })
+    return df
 
 df_ultimate_master = get_master_data()
 price_file = 'price_data.csv'
@@ -72,54 +93,21 @@ df_prices['Category'] = df_prices['Category'].fillna("Uncategorized")
 st.title("📊 Economic Nutrition Explorer")
 
 with st.spinner("Crunching NRF9.3 & Economic Utility for the unified database..."):
+    # Ensure Food Codes match for merging
     df_ultimate_master['Food Code'] = df_ultimate_master['Food Code'].astype(str).str.split('.').str[0].str.strip()
     df_prices['Food Code'] = df_prices['Food Code'].astype(str).str.split('.').str[0].str.strip()
     
-    df_scoring = df_ultimate_master.copy()
-
-    mapping_dict = {
-        'Energy': ['energy'],
-        'Protein': ['protein'],
-        'Fiber': ['fiber, total dietary', 'fiber, total'],
-        'Vitamin A': ['vitamin a, rae', 'vitamin a (rae)'],
-        'Vitamin C': ['vitamin c, total ascorbic acid', 'vitamin c'],
-        'Vitamin E': ['vitamin e (alpha-tocopherol)', 'vitamin e'],
-        'Calcium': ['calcium, ca', 'calcium'],
-        'Iron': ['iron, fe', 'iron'],
-        'Magnesium': ['magnesium, mg', 'magnesium'],
-        'Potassium': ['potassium, k', 'potassium'],
-        'Saturated Fat': ['fatty acids, total saturated', 'saturated fat'],
-        'Sodium': ['sodium, na', 'sodium']
-    }
-
-    def smart_map(desc):
-        desc = str(desc).lower()
-        for standard_name, aliases in mapping_dict.items():
-            if any(alias in desc for alias in aliases): return standard_name
-        return None
+    # Since the new matrix is already pivoted, we just copy it
+    df_pivoted_all = df_ultimate_master.copy()
     
-    df_scoring['Standard_Nutrient'] = df_scoring['Nutrient Description'].apply(smart_map)
+    # Clean up Sugar and Category nulls
+    if 'Added Sugar' not in df_pivoted_all.columns: df_pivoted_all['Added Sugar'] = 0
+    if 'Category' not in df_pivoted_all.columns: df_pivoted_all['Category'] = "Uncategorized"
     
-    # Extract the Added Sugar column before it gets dropped by the pivot
-    df_sugars = df_scoring[['Food Code', 'Added Sugar']].drop_duplicates().groupby('Food Code')['Added Sugar'].max().reset_index()
-    
-    # Extract the Category column
-    if 'Category' not in df_scoring.columns:
-        df_scoring['Category'] = "Uncategorized"
-    df_cats = df_scoring[['Food Code', 'Category']].drop_duplicates().groupby('Food Code')['Category'].first().reset_index()
-
-    # Pivot to get one row per food
-    df_pivoted_all = df_scoring.dropna(subset=['Standard_Nutrient']).pivot_table(
-        index=['Food Code', 'Main Food Description'], columns='Standard_Nutrient', values='Nutrient Value', aggfunc='max'
-    ).reset_index().fillna(0)
-
-    # Merge the Added Sugar and Category data back into the pivoted dataset
-    df_pivoted_all = pd.merge(df_pivoted_all, df_sugars, on='Food Code', how='left')
-    df_pivoted_all = pd.merge(df_pivoted_all, df_cats, on='Food Code', how='left')
     df_pivoted_all['Added Sugar'] = df_pivoted_all['Added Sugar'].fillna(0)
     df_pivoted_all['Category'] = df_pivoted_all['Category'].fillna("Uncategorized")
     
-    # Overwrite FNDDS/SR Legacy categories with custom Price Data categories if they exist
+    # Overwrite Master DB categories with custom Price Data categories if they exist
     price_cat_map = df_prices.set_index('Food Code')['Category'].to_dict()
     df_pivoted_all['Category'] = df_pivoted_all.apply(
         lambda row: price_cat_map.get(row['Food Code'], row['Category']), axis=1
