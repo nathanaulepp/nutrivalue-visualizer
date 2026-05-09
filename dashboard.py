@@ -341,40 +341,90 @@ with tab_custom:
             elif "Heatmap" in exploration_type:
                 st.subheader("Variable Correlation Matrix")
 
-                # 1. Wrap the inputs in a form to prevent auto-reloading on every click
+                # 1. Expert UI: Dynamically categorize columns for Tab organization
+                def categorize_nutrient(col_name):
+                    lower_col = col_name.lower()
+                    macros = ['protein', 'lipid', 'carbohydrate', 'energy', 'water', 'alcohol', 'fiber', 'sugar']
+                    
+                    if any(m in lower_col for m in macros) and 'fatty acid' not in lower_col:
+                        return "Macronutrients"
+                    elif any(m in lower_col for m in ['calcium', 'iron', 'magnesium', 'phosphorus', 'potassium', 'sodium', 'zinc', 'copper', 'selenium']):
+                        return "Minerals"
+                    elif any(v in lower_col for v in ['vitamin', 'thiamin', 'riboflavin', 'niacin', 'folate', 'folic', 'retinol', 'carotene', 'cryptoxanthin', 'choline']):
+                        return "Vitamins"
+                    elif any(f in lower_col for f in ['fatty acid', 'sfa', 'mufa', 'pufa', 'cholesterol']):
+                        return "Lipids & Fatty Acids"
+                    else:
+                        return "Phytochemicals & Other"
+
+                # Group the available columns
+                nutrient_groups = {}
+                for col in numeric_options:
+                    group = categorize_nutrient(col)
+                    if group not in nutrient_groups:
+                        nutrient_groups[group] = []
+                    nutrient_groups[group].append(col)
+
                 with st.form("heatmap_form"):
-                    st.write("Select variables to compare:")
-        
-                    # 2. Use an expander to act as an organized, collapsible "dropdown"
-                    with st.expander("Nutrient Options (Click to expand and select)"):
-                        selected_vars = []
-            
-                        # Create 4 columns for a clean, organized checkbox grid
-                        cols = st.columns(4) 
-            
-                        # 3. Loop through all numeric options to create checkboxes
-                        for i, col_name in enumerate(numeric_options):
-                            # Default the first 5 to True so the chart isn't empty on first load
-                            is_default = i < 5 
-                
-                            # Distribute checkboxes evenly across the 4 columns
-                            if cols[i % 4].checkbox(col_name, value=is_default, key=f"chk_{col_name}"):
-                                selected_vars.append(col_name)
+                    # 2. Add the Basis toggle
+                    st.write("### 1. Select Correlation Basis")
+                    basis = st.radio(
+                        "Calculate correlations based on:", 
+                        options=["Per 100g", "Per 100 kcal"],
+                        horizontal=True,
+                        help="Per 100g is the FDC standard. Per 100 kcal normalizes nutrients to energy density."
+                    )
 
-                    # 4. The user clicks this button to apply all selections at once
-                    submit_button = st.form_submit_button("Generate Heatmap")
+                    st.write("### 2. Select Variables to Compare")
+                    selected_vars = []
+                    
+                    # 3. Create interactive tabs based on our dynamic groups
+                    tabs = st.tabs(list(nutrient_groups.keys()))
+                    
+                    for i, (group_name, cols_in_group) in enumerate(nutrient_groups.items()):
+                        with tabs[i]:
+                            # 4-column layout for scannability inside each tab
+                            grid_cols = st.columns(4)
+                            for j, col_name in enumerate(cols_in_group):
+                                # Default selection to ensure the chart renders initially
+                                is_default = col_name in ["Protein (g)", "Total lipid (g)", "Carbohydrate (g)", "Energy (kcal)", "Fiber, total dietary (g)"]
+                                if grid_cols[j % 4].checkbox(col_name, value=is_default, key=f"chk_{col_name}"):
+                                    selected_vars.append(col_name)
 
-                # 5. Render the plot using the variables collected from the checkboxes
+                    submit_button = st.form_submit_button("Generate Correlation Matrix", type="primary")
+
+                # 4. Generate the matrix based on form submission
                 if len(selected_vars) > 1:
-                    corr_matrix = df_filtered[selected_vars].corr()
+                    df_corr = df_filtered[selected_vars].copy()
+
+                    # Execute "Per 100 kcal" transformation if selected
+                    if basis == "Per 100 kcal" and "Energy (kcal)" in df_filtered.columns:
+                        # Prevent DivisionByZero errors by temporarily swapping 0 for NaN
+                        energy_col = df_filtered["Energy (kcal)"].replace(0, pd.NA)
+                        
+                        for col in selected_vars:
+                            # We don't scale Energy by Energy (it would just be 100 across the board)
+                            if col != "Energy (kcal)":
+                                df_corr[col] = (df_corr[col] / energy_col) * 100
+                        
+                        # Drop foods that had 0 kcal so they don't break the correlation math
+                        df_corr = df_corr.dropna(how='all')
+
+                    # Calculate correlation
+                    corr_matrix = df_corr.corr()
+
+                    # 5. Dynamic height based on selection volume
+                    dynamic_height = max(700, len(selected_vars) * 35)
+
                     fig = px.imshow(
                         corr_matrix, 
-                        text_auto=".2f" if len(selected_vars) < 15 else False, 
+                        text_auto=".2f" if len(selected_vars) <= 15 else False, 
                         aspect="auto", 
                         color_continuous_scale="RdBu_r", 
                         zmin=-1, zmax=1,
                         template="plotly_white", 
-                        height=800
+                        height=dynamic_height, 
+                        title=f"Variable Correlation Matrix ({basis})"
                     )
                     st.plotly_chart(fig, use_container_width=True)
                 else:
