@@ -316,7 +316,7 @@ with tab_custom:
                 # FIX: Set size parameter to Python's None type if the string "None" is selected
                 fig = px.scatter(
                     df_clean, x=x_axis, y=y_axis, color="Category", color_discrete_map=CATEGORY_COLORS, 
-                    size=10 if r_axis == "None" else r_axis, size_max=25, 
+                    size=None if r_axis == "None" else r_axis, size_max=25, 
                     hover_name=hover_name_target, hover_data=hover_data_target,
                     template="plotly_white", height=600, title=f"{y_axis} vs {x_axis}"
                 )
