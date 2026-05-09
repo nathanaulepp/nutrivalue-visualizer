@@ -48,7 +48,7 @@ def get_master_data():
     # Load the new pre-cleaned matrix
     df = pd.read_csv('updated_05082026_cleaned_nutrient_matrix.csv', low_memory=False)
     
-    # Rename columns to perfectly match the dashboard's calculation engine
+    # Inside the get_master_data() function
     df = df.rename(columns={
         'fdc_id': 'Food Code',
         'description': 'Main Food Description',
@@ -65,7 +65,7 @@ def get_master_data():
         'Potassium, K (mg)': 'Potassium',
         'Fatty acids, total saturated (g)': 'Saturated Fat',
         'Sodium, Na (mg)': 'Sodium',
-        'Sugars, added (g)': 'Added Sugar'
+        'Sugars, added (g)': 'Added Sugar',
     })
     return df
 
@@ -91,7 +91,21 @@ df_prices['Category'] = df_prices['Category'].fillna("Uncategorized")
 # 3. THE CALCULATION ENGINE
 # ==========================================
 st.title("📊 Economic Nutrition Explorer")
-
+# Map the 12 NRF9.3 nutrients to their precalculated CSV counterparts
+NRF_CSV_COLS = {
+    'Protein': 'Protein/100kcal (g)',
+    'Fiber': 'Fiber, total dietary/100kcal (g)',
+    'Vitamin A': 'Vitamin A, RAE/100kcal (ug)',
+    'Vitamin C': 'Vitamin C, total ascorbic acid/100kcal (mg)',
+    'Vitamin E': 'Vitamin E (alpha-tocopherol)/100kcal (mg)',
+    'Calcium': 'Calcium, Ca/100kcal (mg)',
+    'Iron': 'Iron, Fe/100kcal (mg)',
+    'Magnesium': 'Magnesium, Mg/100kcal (mg)',
+    'Potassium': 'Potassium, K/100kcal (mg)',
+    'Saturated Fat': 'Fatty acids, total saturated/100kcal (g)',
+    'Added Sugar': 'Sugars, added/100kcal (g)',
+    'Sodium': 'Sodium, Na/100kcal (mg)'
+}
 with st.spinner("Crunching NRF9.3 & Economic Utility for the unified database..."):
     # Ensure Food Codes match for merging
     df_ultimate_master['Food Code'] = df_ultimate_master['Food Code'].astype(str).str.split('.').str[0].str.strip()
@@ -112,25 +126,19 @@ with st.spinner("Crunching NRF9.3 & Economic Utility for the unified database...
     )
 
     # NRF9.3 CALCULATION (Per 100 kcals) for ALL ITEMS
-    if 'Energy' not in df_pivoted_all.columns: df_pivoted_all['Energy'] = 0
-
     nr9_cols = ['Protein', 'Fiber', 'Vitamin A', 'Vitamin C', 'Vitamin E', 'Calcium', 'Iron', 'Magnesium', 'Potassium']
     lim3_cols = ['Saturated Fat', 'Added Sugar', 'Sodium']
     
-    for nut in nr9_cols + lim3_cols:
-        if nut not in df_pivoted_all.columns: df_pivoted_all[nut] = 0
-        df_pivoted_all[f"{nut}_100k"] = df_pivoted_all.apply(
-            lambda row: (row[nut] / row['Energy'] * 100) if row['Energy'] > 0 else 0, axis=1
-        )
-
     nr9_total = 0
     for nut in nr9_cols:
-        pct_dv = (df_pivoted_all[f"{nut}_100k"] / DV_MAPPING[nut]) * 100
+        col_name = NRF_CSV_COLS[nut] # Look up the exact CSV column name
+        pct_dv = (df_pivoted_all[col_name].fillna(0) / DV_MAPPING[nut]) * 100
         nr9_total += pct_dv.clip(upper=100) 
         
     lim3_total = 0
     for nut in lim3_cols:
-        lim3_total += (df_pivoted_all[f"{nut}_100k"] / DV_MAPPING[nut]) * 100
+        col_name = NRF_CSV_COLS[nut]
+        lim3_total += (df_pivoted_all[col_name].fillna(0) / DV_MAPPING[nut]) * 100
         
     df_pivoted_all['NRF9.3 Score'] = round(nr9_total - lim3_total, 1)
 
@@ -341,11 +349,10 @@ with tab_custom:
             elif "Heatmap" in exploration_type:
                 st.subheader("Variable Correlation Matrix")
 
-                # 1. Isolate the base options by filtering out the hardcoded per 100 kcal columns
-                # We do this so we can organize the categories cleanly based on the root nutrient
+                # 1. Isolate the base options by filtering out the precalculated columns
                 base_options = [
                     col for col in numeric_options 
-                    if "(per 100 kcal)" not in col
+                    if "/100kcal" not in col
                 ]
 
                 # Dynamically categorize the base columns for Tab organization
@@ -388,10 +395,19 @@ with tab_custom:
                             # Build a display list that groups a base nutrient and its 100kcal twin together
                             display_items = []
                             for base_col in cols_in_group:
-                                display_items.append(base_col) # Add the base 100g version
+                                display_items.append(base_col) 
                                 
-                                # Look for the hardcoded 100 kcal version in the dataset
-                                kcal_col = f"{base_col} (per 100 kcal)"
+                                # If it's one of the 12 renamed NRF columns, pull from dict
+                                if base_col in NRF_CSV_COLS:
+                                    kcal_col = NRF_CSV_COLS[base_col]
+                                else:
+                                    # Fallback for all other CSV nutrients (e.g. Zinc)
+                                    parts = base_col.split(' (')
+                                    if len(parts) == 2:
+                                        kcal_col = f"{parts[0]}/100kcal ({parts[1]}"
+                                    else:
+                                        kcal_col = f"{base_col}/100kcal"
+
                                 if kcal_col in numeric_options:
                                     display_items.append(kcal_col)
 
@@ -399,7 +415,7 @@ with tab_custom:
                             grid_cols = st.columns(4)
                             for j, col_name in enumerate(display_items):
                                 # Default selection to ensure chart renders initially
-                                is_default = col_name in ["Protein (g)", "Protein (g) (per 100 kcal)", "Energy (kcal)", "NRF9.3"]
+                                is_default = col_name in ["Protein (g)", "Protein/100kcal (g)", "Energy (kcal)", "NRF9.3 Score"]
                                 
                                 if grid_cols[j % 4].checkbox(col_name, value=is_default, key=f"chk_{col_name}"):
                                     selected_vars.append(col_name)
@@ -408,10 +424,8 @@ with tab_custom:
 
                 # 2. Generate the matrix based on form submission
                 if len(selected_vars) > 1:
-                    # Since the math is already done in the CSV, we just pass the selected columns directly!
                     corr_matrix = df_filtered[selected_vars].corr()
 
-                    # Dynamic height based on selection volume
                     dynamic_height = max(700, len(selected_vars) * 35)
 
                     fig = px.imshow(
@@ -425,7 +439,7 @@ with tab_custom:
                         title="Variable Correlation Matrix"
                     )
                     st.plotly_chart(fig, use_container_width=True)
-                else:
+                elif submit_button:
                     st.warning("Please select at least two variables to view correlations.")
 
 with st.expander("🔍 View Detailed Data Table"):
